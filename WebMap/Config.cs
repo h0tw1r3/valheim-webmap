@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using TinyJson;
-
+using System.Globalization;
+using System.Linq;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace WebMap {
-
-    static class WebMapConfig {
-
+    internal static class WebMapConfig {
         public static int TEXTURE_SIZE = 2048;
         public static int PIXEL_SIZE = 12;
         public static float EXPLORE_RADIUS = 100f;
@@ -19,141 +16,99 @@ namespace WebMap {
 
         public static int SERVER_PORT = 3000;
         public static double PLAYER_UPDATE_INTERVAL = 0.5;
-        public static bool CACHE_SERVER_FILES = false;
+        public static bool CACHE_SERVER_FILES;
 
         public static string WORLD_NAME = "";
         public static Vector3 WORLD_START_POS = Vector3.zero;
         public static int DEFAULT_ZOOM = 200;
 
-        public static TValue GetValueOrDefault<TKey, TValue>(
-            this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue) {
+        public static void ReadConfigFile(ConfigFile config) {
+            TEXTURE_SIZE = config.Bind("Texture", "texture_size", 2048,
+                "How large is the map texture? Probably dont change this.").Value;
 
-            TValue value;
-            return dictionary.TryGetValue(key, out value) ? value : defaultValue;
+            PIXEL_SIZE = config.Bind("Texture", "pixel_size", 12,
+                "How many in game units does a map pixel represent? Probably dont change this.").Value;
+
+            EXPLORE_RADIUS = config.Bind<float>("Texture", "explore_radius", 100,
+                "A larger explore_radius reveals the map more quickly.").Value;
+
+            UPDATE_FOG_TEXTURE_INTERVAL = config.Bind<float>("Interval", "update_fog_texture_interval", 1,
+                "How often do we update the fog texture on the server in seconds.").Value;
+
+            SAVE_FOG_TEXTURE_INTERVAL = config.Bind<float>("Interval", "save_fog_texture_interval", 30,
+                "How often do we save the fog texture in seconds.").Value;
+
+            MAX_PINS_PER_USER = config.Bind("User", "max_pins_per_user", 50,
+                "How many pins each client is allowed to make before old ones start being deleted.").Value;
+
+            SERVER_PORT = config.Bind("Server", "server_port", 3000,
+                "HTTP port for the website. The map will be display on this site.").Value;
+
+            PLAYER_UPDATE_INTERVAL = config.Bind<float>("Interval", "player_update_interval", 0.5f,
+                "How often do we send position data to web browsers in seconds.").Value;
+
+            CACHE_SERVER_FILES = config.Bind<bool>("Server", "cache_server_files", true,
+                "Should the server cache web files to be more performant?").Value;
+
+            DEFAULT_ZOOM = config.Bind("Texture", "default_zoom", 200,
+                "How zoomed in should the web map start at? Higher is more zoomed in.").Value;
+
+            WORLD_START_POS = config.Bind<Vector3>("Server", "world_start_pos", Vector3.zero,
+                "Set the position where the spawn is. y is ignored.").Value;
         }
 
-        public static void readConfigFile(string configFile) {
-            string fileJson = "";
-            try {
-                fileJson = File.ReadAllText(configFile);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO READ CONFIG FILE AT: " + configFile);
-                System.Environment.Exit(1);
+        public static string GetWorldName() {
+            if (WORLD_NAME != "") return WORLD_NAME;
+            if (ZNet.instance != null) {
+                WORLD_NAME = ZNet.instance.GetWorldName();
+            } else {
+                string[] arguments = Environment.GetCommandLineArgs();
+                string worldName = "";
+                for (int t = 0; t < arguments.Length; t++)
+                    if (arguments[t] == "-world") {
+                        worldName = arguments[t + 1];
+                        break;
+                    }
+                WORLD_NAME = worldName;
             }
-
-            var configJson = (Dictionary<string, object>)fileJson.FromJson<object>();
-
-            if (configJson == null) {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE CONFIG FILE AT: " + configFile + " . INVALID SYNTAX?");
-                System.Environment.Exit(1);
-            }
-
-            try {
-                TEXTURE_SIZE = (int)configJson.GetValueOrDefault("texture_size", 2048);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE texture_size VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                PIXEL_SIZE = (int)configJson.GetValueOrDefault("pixel_size", 12);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE pixel_size VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                EXPLORE_RADIUS = (float)Convert.ToDouble(configJson.GetValueOrDefault("explore_radius", 100f));
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE explore_radius VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                UPDATE_FOG_TEXTURE_INTERVAL = (float)Convert.ToDouble(configJson.GetValueOrDefault("update_fog_texture_interval", 1f));
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE update_fog_texture_interval VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                SAVE_FOG_TEXTURE_INTERVAL = (float)Convert.ToDouble(configJson.GetValueOrDefault("save_fog_texture_interval", 30f));
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE save_fog_texture_interval VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                MAX_PINS_PER_USER = (int)configJson.GetValueOrDefault("max_pins_per_user", 50);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE max_pins_per_user VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                SERVER_PORT = (int)configJson.GetValueOrDefault("server_port", 3000);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE server_port VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                PLAYER_UPDATE_INTERVAL = Convert.ToDouble(configJson.GetValueOrDefault("player_update_interval", 0.5));
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE player_update_interval VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                CACHE_SERVER_FILES = (bool)configJson.GetValueOrDefault("cache_server_files", true);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE cache_server_files VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
-
-            try {
-                DEFAULT_ZOOM = (int)configJson.GetValueOrDefault("default_zoom", 200);
-            } catch {
-                System.Console.WriteLine("~~~ WebMap: FAILED TO PARSE default_zoom VALUE IN CONFIG FILE AT: " + configFile + " . INVALID TYPE?");
-            }
+            return WORLD_NAME;
         }
 
-        public static string getWorldName() {
-            if (WORLD_NAME != "") {
-                return WORLD_NAME;
-            }
-            string[] arguments = Environment.GetCommandLineArgs();
-            var worldName = "";
-            for (var t = 0; t < arguments.Length; t++) {
-                if (arguments[t] == "-world") {
-                    worldName = arguments[t + 1];
-                    break;
+        public static string MakeClientConfigJson() {
+            Dictionary<string, object> config = new Dictionary<string, object>();
+
+            config["world_name"] = GetWorldName();
+            config["world_start_pos"] = WORLD_START_POS;
+            config["default_zoom"] = DEFAULT_ZOOM;
+            config["texture_size"] = TEXTURE_SIZE;
+            config["pixel_size"] = PIXEL_SIZE;
+            config["update_interval"] = PLAYER_UPDATE_INTERVAL;
+            config["explore_radius"] = EXPLORE_RADIUS;
+
+            string json = DictionaryToJson(config);
+
+            Debug.Log("Config#: " + json);
+            return json;
+        }
+
+        static string DictionaryToJson(Dictionary<string, object> dict) {
+            var entries = dict.Select(d => {
+                switch (d.Value) {
+                    case float o:
+                        return $"\"{d.Key}\": {o.ToString("F2", CultureInfo.InvariantCulture)}";
+                    case double o:
+                        return $"\"{d.Key}\": {o.ToString("F2", CultureInfo.InvariantCulture)}";
+                    case string o:
+                        return $"\"{d.Key}\": \"{o}\"";
+                    case Vector3 o:
+                        return $"\"{d.Key}\": \"{o.x.ToString("F2", CultureInfo.InvariantCulture)}," +
+                               $"{o.y.ToString("F2", CultureInfo.InvariantCulture)}," +
+                               $"{o.z.ToString("F2", CultureInfo.InvariantCulture)}\"";
+                    default:
+                        return $"\"{d.Key}\": {d.Value}";
                 }
-            }
-            WORLD_NAME = worldName;
-            return worldName;
-        }
-
-        private static System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-        public static string str(int n) {
-            return n.ToString(culture);
-        }
-        public static string str(float n, int precision = 2) {
-            return n.ToString("F" + precision, culture);
-        }
-        public static string str(double n, int precision = 2) {
-            return n.ToString("F" + precision, culture);
-        }
-        public static string str(long n) {
-            return n.ToString(culture);
-        }
-
-        public static string makeClientConfigJSON() {
-            var sb = new StringBuilder();
-            sb.Length = 0;
-
-            sb.Append("{");
-            sb.Append($"\"world_name\":\"{getWorldName()}\",");
-            sb.Append($"\"world_start_pos\": \"{str(WORLD_START_POS.x)},{str(WORLD_START_POS.y)},{str(WORLD_START_POS.z)}\",");
-            sb.Append($"\"default_zoom\":{str(DEFAULT_ZOOM)},");
-            sb.Append($"\"texture_size\":{str(TEXTURE_SIZE)},");
-            sb.Append($"\"pixel_size\":{str(PIXEL_SIZE)},");
-            sb.Append($"\"update_interval\":{str(PLAYER_UPDATE_INTERVAL)},");
-            sb.Append($"\"explore_radius\":{str(EXPLORE_RADIUS)}");
-            sb.Append("}");
-
-            return sb.ToString();
+            });
+            return "{" + string.Join(",", entries) + "}";
         }
     }
 }
