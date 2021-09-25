@@ -347,7 +347,7 @@ namespace WebMap {
                         string message = package.ReadString();
                         message = (message == null ? "" : message).Trim();
 
-                        if (message.StartsWith("/pin")) {
+                        if (message.StartsWith("!pin")) {
                             string[] messageParts = message.Split(' ');
                             string pinType = "dot";
                             int startIdx = 1;
@@ -377,13 +377,13 @@ namespace WebMap {
                             }
 
                             SavePins();
-                        } else if (message.StartsWith("/undoPin")) {
+                        } else if (message.StartsWith("!undoPin")) {
                             int pinIdx = mapDataServer.pins.FindLastIndex(pin => pin.StartsWith(steamid));
                             if (pinIdx > -1) {
                                 mapDataServer.RemovePin(pinIdx);
                                 SavePins();
                             }
-                        } else if (message.StartsWith("/deletePin")) {
+                        } else if (message.StartsWith("!deletePin")) {
                             string[] messageParts = message.Split(' ');
                             string pinText = "";
                             if (messageParts.Length > 1)

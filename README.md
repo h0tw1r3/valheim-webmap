@@ -32,12 +32,12 @@ You may also be able to hold down the `shift` key and click the reload button in
 
 This mod supports placing pins with chat commands. Press `Enter` to start chatting in game. The commands are as follows:
 
-* `/pin` - Place a "dot" pin with no text on the map where you are currently standing.
-* `/pin my pin name` - Place a "dot" pin with "my pin name" under it on the map where you are currently standing.
-* `/pin [pin-type] [text]` - Place a pin of a certain type with optional text under it on the map where you are currently standing.
+* `!pin` - Place a "dot" pin with no text on the map where you are currently standing.
+* `!pin my pin name` - Place a "dot" pin with "my pin name" under it on the map where you are currently standing.
+* `!pin [pin-type] [text]` - Place a pin of a certain type with optional text under it on the map where you are currently standing.
     * Pin types are: `dot`, `fire`, `mine`, `house` and `cave`. Example command: `/pin house my awesome base`
-* `/undoPin` - Delete your most recent pin.
-* `/deletePin [text]` - Delete the most recent pin that matches the text exactly.
+* `!undoPin` - Delete your most recent pin.
+* `!deletePin [text]` - Delete the most recent pin that matches the text exactly.
 
 If a player creates too many pins, their oldest pin will be removed. There is a setting to control how many pins a player can create in `config.json`.
 
