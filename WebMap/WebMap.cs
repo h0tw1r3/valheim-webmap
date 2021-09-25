@@ -467,7 +467,7 @@ namespace WebMap
                         }
                         else
                         {
-                            mapDataServer.BroadcastMessage(data.m_senderPeerID, messageType, userName, message);
+                            mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
                             Debug.Log("WebMap: (say) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
                     }
@@ -490,7 +490,7 @@ namespace WebMap
                             string message = package.ReadString();
                             message = (message == null ? "" : message).Trim();
 
-                            mapDataServer.BroadcastMessage(data.m_senderPeerID, messageType, userName, message);
+                            mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
                             Debug.Log("WebMap: (shout) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
                     }

@@ -44,6 +44,7 @@ const fetchConfig = fetch('config').then(res => res.json()).then(config => {
     constants.WORLD_NAME = config.world_name;
     constants.WORLD_START_POSITION = parseVector3(config.world_start_pos);
     constants.DEFAULT_ZOOM = config.default_zoom || 200;
+    constants.MAX_MESSAGES = config.max_messages || 100;
     document.title = `Valheim WebMap - ${constants.WORLD_NAME}`;
     createStyleSheet(`
 		.mapIcon.player {
@@ -127,16 +128,29 @@ const setup = async () => {
         map.removeIconById(pinid);
     });
 
-    websocket.addActionListener('message', (message) => {
-        console.log(message);
-        const messageEntry = createUi(`
-			<div class="message">
-				<span class="name" data-id="name"></span>: <span class="text" data-id="message"></span>
-			</div>
-		`);
-        messageEntry.ui.name.textContent = message.name;
-        messageEntry.ui.message.textContent = message.message;
-        ui.messageList.appendChild(messageEntry.el);
+    websocket.addActionListener('messages', (messages) => {
+        messages.forEach((message) => {
+            const messageEntry = createUi(`
+                <div class="message">
+		            <span class="name" data-id="name"></span>: <span class="text" data-id="message"></span>
+                </div>
+            `);
+
+            messageEntry.ui.name.textContent = message.name;
+            messageEntry.ui.message.textContent = message.message;
+            ui.messageList.appendChild(messageEntry.el);
+        });
+        while (document.getElementById('messages').childElementCount > constants.MAX_MESSAGES) {
+            document.getElementById('messages').childNodes[0].remove();
+        }
+    });
+
+    fetch('messages').then(resp => resp.json()).then(messages => {
+        if (messages.length > 0) {
+            websocket.getActionListeners('messages').forEach(func => {
+                func(messages);
+            });
+        }
     });
 
     window.addEventListener('resize', () => {

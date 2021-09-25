@@ -11,6 +11,30 @@ using static WebMap.WebMapConfig;
 
 namespace WebMap
 {
+    [Serializable]
+    public struct MapMessage
+    {
+        public long id;
+        public int type;
+        public string name;
+        public string message;
+        public DateTime dateTime;
+
+        public MapMessage (long id, int type, string name, string message)
+        {
+            this.id = id;
+            this.type = type;
+            this.name = name;
+            this.message = message;
+            this.dateTime = DateTime.Now;
+        }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
+
     public class WebSocketHandler : WebSocketBehavior
     {
         // protected override void OnOpen() {
@@ -41,6 +65,8 @@ namespace WebMap
 
         public byte[] mapImageData;
         public List<string> pins = new List<string>();
+        public List<MapMessage> sentMessages = new List<MapMessage>();
+        public List<MapMessage> newMessages = new List<MapMessage>();
         public List<ZNetPeer> players = new List<ZNetPeer>();
         private readonly string publicRoot;
         private readonly WebSocketServiceHost webSocketHandler;
@@ -84,6 +110,20 @@ namespace WebMap
                     }
                 });
                 if (dataString.Length > 0) webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
+
+                if (newMessages.Count > 0)
+                {
+                    List<string> tosend = new List<string>();
+
+                    newMessages.ForEach(message => {
+                        if (WebMapConfig.MAX_MESSAGES < sentMessages.Count) sentMessages.RemoveAt(0);
+                        tosend.Add(message.ToJson());
+                        sentMessages.Add(message);
+                    });
+                    if (tosend.Count > 0) webSocketHandler.Sessions.Broadcast("messages\n[" + string.Join(",", tosend) + "]");
+                    newMessages.Clear();
+                    newMessages.TrimExcess();
+                }
             }, null, TimeSpan.Zero, TimeSpan.FromSeconds(PLAYER_UPDATE_INTERVAL));
 
             publicRoot = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty, "web");
@@ -195,6 +235,19 @@ namespace WebMap
                     res.ContentLength64 = fogBytes.Length;
                     res.Close(fogBytes, true);
                     return true;
+                case "/messages":
+                    res.Headers.Add(HttpResponseHeader.CacheControl, "no-cache");
+                    res.ContentType = "applicaion/json";
+                    res.StatusCode = 200;
+                    List<string> tosend = new List<string>();
+                    sentMessages.ForEach(message =>
+                    {
+                        tosend.Add(message.ToJson());
+                    });
+                    textBytes = Encoding.UTF8.GetBytes("[" + string.Join(", ", tosend) + "]");
+                    res.ContentLength64 = textBytes.Length;
+                    res.Close(textBytes, true);
+                    return true;
                 case "/pins":
                     res.Headers.Add(HttpResponseHeader.CacheControl, "no-cache");
                     res.ContentType = "text/csv";
@@ -242,6 +295,11 @@ namespace WebMap
             string[] pinParts = pin.Split(',');
             pins.RemoveAt(idx);
             webSocketHandler.Sessions.Broadcast($"rmpin\n{pinParts[1]}");
+        }
+
+        public void AddMessage(long id, int type, string name, string message)
+        {
+            newMessages.Add(new MapMessage(id, type, name, message));
         }
 
         private static string FixedValue(float f)

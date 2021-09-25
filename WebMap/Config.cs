@@ -15,6 +15,7 @@ namespace WebMap
         public static float UPDATE_FOG_TEXTURE_INTERVAL = 1f;
         public static float SAVE_FOG_TEXTURE_INTERVAL = 30f;
         public static int MAX_PINS_PER_USER = 50;
+        public static int MAX_MESSAGES = 100;
 
         public static int SERVER_PORT = 3000;
         public static double PLAYER_UPDATE_INTERVAL = 0.5;
@@ -58,6 +59,9 @@ namespace WebMap
 
             WORLD_START_POS = config.Bind<Vector3>("Server", "world_start_pos", Vector3.zero,
                 "Set the position where the spawn is. y is ignored.").Value;
+
+            MAX_MESSAGES = config.Bind("Server", "max_messages", WebMapConfig.MAX_MESSAGES,
+                "How many messages to keep buffered and display to client.").Value;
         }
 
         public static string GetWorldName()
@@ -93,6 +97,7 @@ namespace WebMap
             config["pixel_size"] = PIXEL_SIZE;
             config["update_interval"] = PLAYER_UPDATE_INTERVAL;
             config["explore_radius"] = EXPLORE_RADIUS;
+            config["max_messages"] = MAX_MESSAGES;
 
             string json = DictionaryToJson(config);
 

@@ -6,6 +6,10 @@ const addActionListener = (type, func) => {
     actionListeners[type] = listeners;
 };
 
+const getActionListeners = (type) => {
+    return actionListeners[type] || [];
+}
+
 const actions = {
     players: (lines, message) => {
         const msg = message.replace(/^players\n/, '');
@@ -73,15 +77,11 @@ const actions = {
             func(lines[0]);
         });
     },
-    message: (lines) => {
-        const message = {
-            playerId: lines[0],
-            messageType: lines[1],
-            name: lines[2],
-            message: lines[3]
-        };
-        actionListeners.message.forEach(func => {
-            func(message);
+    messages: (lines, message) => {
+        const msg = message.replace(/^messages\n/, '');
+        var messages = JSON.parse(msg);
+        actionListeners.messages.forEach(func => {
+            func(messages);
         });
     }
 };
@@ -119,6 +119,7 @@ const init = () => {
 
 export default {
     init,
-    addActionListener
+    addActionListener,
+    getActionListeners
 };
 
