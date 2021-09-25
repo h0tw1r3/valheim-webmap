@@ -5,8 +5,10 @@ using System.Linq;
 using BepInEx.Configuration;
 using UnityEngine;
 
-namespace WebMap {
-    internal static class WebMapConfig {
+namespace WebMap
+{
+    internal static class WebMapConfig
+    {
         public static int TEXTURE_SIZE = 2048;
         public static int PIXEL_SIZE = 12;
         public static float EXPLORE_RADIUS = 100f;
@@ -22,7 +24,8 @@ namespace WebMap {
         public static Vector3 WORLD_START_POS = Vector3.zero;
         public static int DEFAULT_ZOOM = 200;
 
-        public static void ReadConfigFile(ConfigFile config) {
+        public static void ReadConfigFile(ConfigFile config)
+        {
             TEXTURE_SIZE = config.Bind("Texture", "texture_size", 2048,
                 "How large is the map texture? Probably dont change this.").Value;
 
@@ -57,15 +60,20 @@ namespace WebMap {
                 "Set the position where the spawn is. y is ignored.").Value;
         }
 
-        public static string GetWorldName() {
+        public static string GetWorldName()
+        {
             if (WORLD_NAME != "") return WORLD_NAME;
-            if (ZNet.instance != null) {
+            if (ZNet.instance != null)
+            {
                 WORLD_NAME = ZNet.instance.GetWorldName();
-            } else {
+            }
+            else
+            {
                 string[] arguments = Environment.GetCommandLineArgs();
                 string worldName = "";
                 for (int t = 0; t < arguments.Length; t++)
-                    if (arguments[t] == "-world") {
+                    if (arguments[t] == "-world")
+                    {
                         worldName = arguments[t + 1];
                         break;
                     }
@@ -74,7 +82,8 @@ namespace WebMap {
             return WORLD_NAME;
         }
 
-        public static string MakeClientConfigJson() {
+        public static string MakeClientConfigJson()
+        {
             Dictionary<string, object> config = new Dictionary<string, object>();
 
             config["world_name"] = GetWorldName();
@@ -91,9 +100,12 @@ namespace WebMap {
             return json;
         }
 
-        static string DictionaryToJson(Dictionary<string, object> dict) {
-            var entries = dict.Select(d => {
-                switch (d.Value) {
+        static string DictionaryToJson(Dictionary<string, object> dict)
+        {
+            var entries = dict.Select(d =>
+            {
+                switch (d.Value)
+                {
                     case float o:
                         return $"\"{d.Key}\": {o.ToString("F2", CultureInfo.InvariantCulture)}";
                     case double o:

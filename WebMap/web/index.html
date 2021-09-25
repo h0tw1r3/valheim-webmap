@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>Valheim WebMap</title>
-		<meta charset="utf-8">
-		<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
-		<link rel="icon" type="image/png" href="data:image/png;base64,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">
-		<link href="style.css" rel="stylesheet" type="text/css" />
-	</head>
-	<body>
-		<div data-id="map" class="map">
-			<canvas data-id="canvas"></canvas>
-			<svg class="mapBorder" data-id="mapBorder" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-				<circle data-id="mapBorderCircle" cx="500" cy="500" r="500" fill="none"
-					stroke="#55F" stroke-opacity="50%" stroke-width="2" />
-			</svg>
-		</div>
-		<div data-id="coords" class="mapText coords"></div>
-		<div data-id="menuBtn" class="menu-btn" role="button">
-			<div class="bar"></div>
-			<div class="bar"></div>
-			<div class="bar"></div>
-		</div>
-		<div data-id="menu" class="menu">
-			<label class="inputRow">
-				<input type="checkbox" data-id="hidePlayerList">
-				Hide Player List
-			</label>
-			<label class="inputRow">
-				<input type="checkbox" class="hideIconCheckbox" data-id="hideAll" data-hide="all">
-				Hide all pins
-			</label>
-			<label class="inputRow">
-				<input type="checkbox" class="hideIconCheckbox" data-hide="dot">
-				Hide all
-				<div class="mapIcon dot menuMapIcon"></div>
-			</label>
-			<label class="inputRow">
-				<input type="checkbox" class="hideIconCheckbox" data-hide="house">
-				Hide all
-				<div class="mapIcon house menuMapIcon"></div>
-			</label>
-			<label class="inputRow">
-				<input type="checkbox" class="hideIconCheckbox" data-hide="fire">
-				Hide all
-				<div class="mapIcon fire menuMapIcon"></div>
-			</label>
-			<label class="inputRow">
-				<input type="checkbox" class="hideIconCheckbox" data-hide="cave">
-				Hide all
-				<div class="mapIcon cave menuMapIcon"></div>
-			</label>
-			<label class="inputRow">
-				<input type="checkbox" class="hideIconCheckbox" data-hide="mine">
-				Hide all
-				<div class="mapIcon mine menuMapIcon"></div>
-			</label>
-		</div>
-		<div class="messages" data-id="messageList"></div>
-		<div class="playerListContainer" data-id="playerListContainer">
-			<div class="playerListTitle">Players</div>
-			<div data-id="playerList"></div>
-			<div class="playerListTut" data-id="playerListTut">Click player<br>to toggle follow.</div>
-		</div>
-		<div class="topMessage" data-id="topMessage"></div>
-		<script src="main.js"></script>
-	</body>
+<head>
+    <title>Valheim WebMap</title>
+    <meta charset="utf-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
+    <link rel="icon" type="image/png" href="data:image/png;base64,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">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div data-id="map" class="map">
+        <canvas data-id="canvas"></canvas>
+        <svg class="mapBorder" data-id="mapBorder" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+            <circle data-id="mapBorderCircle" cx="500" cy="500" r="500" fill="none"
+                    stroke="#55F" stroke-opacity="50%" stroke-width="2" />
+        </svg>
+    </div>
+    <div data-id="coords" class="mapText coords"></div>
+    <div data-id="menuBtn" class="menu-btn" role="button">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <div data-id="menu" class="menu">
+        <label class="inputRow">
+            <input type="checkbox" data-id="hidePlayerList">
+            Hide Player List
+        </label>
+        <label class="inputRow">
+            <input type="checkbox" class="hideIconCheckbox" data-id="hideAll" data-hide="all">
+            Hide all pins
+        </label>
+        <label class="inputRow">
+            <input type="checkbox" class="hideIconCheckbox" data-hide="dot">
+            Hide all
+            <div class="mapIcon dot menuMapIcon"></div>
+        </label>
+        <label class="inputRow">
+            <input type="checkbox" class="hideIconCheckbox" data-hide="house">
+            Hide all
+            <div class="mapIcon house menuMapIcon"></div>
+        </label>
+        <label class="inputRow">
+            <input type="checkbox" class="hideIconCheckbox" data-hide="fire">
+            Hide all
+            <div class="mapIcon fire menuMapIcon"></div>
+        </label>
+        <label class="inputRow">
+            <input type="checkbox" class="hideIconCheckbox" data-hide="cave">
+            Hide all
+            <div class="mapIcon cave menuMapIcon"></div>
+        </label>
+        <label class="inputRow">
+            <input type="checkbox" class="hideIconCheckbox" data-hide="mine">
+            Hide all
+            <div class="mapIcon mine menuMapIcon"></div>
+        </label>
+    </div>
+    <div class="messages" data-id="messageList"></div>
+    <div class="playerListContainer" data-id="playerListContainer">
+        <div class="playerListTitle">Players</div>
+        <div data-id="playerList"></div>
+        <div class="playerListTut" data-id="playerListTut">Click player<br>to toggle follow.</div>
+    </div>
+    <div class="topMessage" data-id="topMessage"></div>
+    <script src="main.js"></script>
+</body>
 </html>

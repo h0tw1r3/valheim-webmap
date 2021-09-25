@@ -1,266 +1,274 @@
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html, body {
-	margin: 0;
-	padding: 0;
-	background: #000;
-	overflow: hidden;
-	height: 100%;
-	font-family: sans-serif;
-	touch-action: none;
+    margin: 0;
+    padding: 0;
+    background: #000;
+    overflow: hidden;
+    height: 100%;
+    font-family: sans-serif;
+    touch-action: none;
 }
 
 canvas {
-	image-rendering: crisp-edges;
-	image-rendering: pixelated;
-	width: 100%;
-	height: 100%;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    width: 100%;
+    height: 100%;
 }
 
 @keyframes pulse {
-	from { transform: translate(-50%, -50%) scale(1); }
-	50% { transform: translate(-50%, -50%) scale(1.5); }
-	to { transform: translate(-50%, -50%) scale(1); }
+    from {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
 
 .map {
-	position: fixed;
+    position: fixed;
 }
 
 .mapBorder {
-	width: 100%;
-	height: 100%;
-	pointer-events: none;
-	position: absolute;
-	top: 0;
-	left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 body .map.zooming {
-	transition: none;
+    transition: none;
 }
 
 .menu-btn {
-	position: fixed;
-	top: 8px;
-	left: 8px;
-	padding: 8px;
-	cursor: pointer;
-	-webkit-tap-highlight-color: transparent;
-	z-index: 20;
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    padding: 8px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 20;
 }
 
-.menu-btn:hover .bar {
-	background: #ccc;
-}
+    .menu-btn:hover .bar {
+        background: #ccc;
+    }
 
-.menu-btn .bar {
-	background: #fff;
-	width: 30px;
-	height: 3px;
-	margin-bottom: 4px;
-	border-radius: 10px 0;
-	box-shadow: 0px 0px 3px 1.5px #000;
-	transition: background 0.1s ease-in-out;
-}
+    .menu-btn .bar {
+        background: #fff;
+        width: 30px;
+        height: 3px;
+        margin-bottom: 4px;
+        border-radius: 10px 0;
+        box-shadow: 0px 0px 3px 1.5px #000;
+        transition: background 0.1s ease-in-out;
+    }
 
-.menu-btn .bar:last-child {
-	margin-bottom: 0;
-}
+        .menu-btn .bar:last-child {
+            margin-bottom: 0;
+        }
 
 .menu {
-	background: rgba(0, 0, 0, 0.7);
-	color: #fff;
-	padding: 10px 16px 10px 12px;
-	position: fixed;
-	top: 46px;
-	/* left: 14px; */
-	left: -180px;
-	font-size: 14px;
-	transition: left 0.3s ease-in-out;
-	z-index: 20;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px 16px 10px 12px;
+    position: fixed;
+    top: 46px;
+    /* left: 14px; */
+    left: -180px;
+    font-size: 14px;
+    transition: left 0.3s ease-in-out;
+    z-index: 20;
 }
 
-.menu.menuOpen {
-	left: 0px;
-}
+    .menu.menuOpen {
+        left: 0px;
+    }
 
-.menu label {
-	cursor: pointer;
-	user-select: none;
-}
+    .menu label {
+        cursor: pointer;
+        user-select: none;
+    }
 
-.menu .inputRow {
-	display: flex;
-	align-items: center;
-	height: 26px;
-}
+    .menu .inputRow {
+        display: flex;
+        align-items: center;
+        height: 26px;
+    }
 
 .inputRow input {
-	margin-right: 8px;
+    margin-right: 8px;
 }
 
 .mapText {
-	color: #fff;
-	font-size: 12px;
-	white-space: nowrap;
-	text-shadow: 0 0 6px #000, 0 0 6px #000, 0 0 3px #000;
-	user-select: none;
-	pointer-events: none;
+    color: #fff;
+    font-size: 12px;
+    white-space: nowrap;
+    text-shadow: 0 0 6px #000, 0 0 6px #000, 0 0 3px #000;
+    user-select: none;
+    pointer-events: none;
 }
 
 .messages {
-	background: rgba(0, 0, 0, 0.7);
-	color: #fff;
-	padding: 10px 14px;
-	position: fixed;
-	left: 4px;
-	bottom: 4px;
-	z-index: 10;
-	font-size: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px 14px;
+    position: fixed;
+    left: 4px;
+    bottom: 4px;
+    z-index: 10;
+    font-size: 12px;
 }
 
-.messages .name {
-	color: #ff6a00;
-}
+    .messages .name {
+        color: #ff6a00;
+    }
 
 .coords {
-	position: fixed;
-	right: 8px;
-	bottom: 6px;
-	z-index: 10;
-	font-size: 10px;
+    position: fixed;
+    right: 8px;
+    bottom: 6px;
+    z-index: 10;
+    font-size: 10px;
 }
 
 .mapIcon {
-	position: absolute;
-	width: 32px;
-	height: 32px;
-	background-image: url('mapIcons.png');
-	background-size: 160px;
-	transform: translate(-50%, -50%);
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background-image: url('mapIcons.png');
+    background-size: 160px;
+    transform: translate(-50%, -50%);
 }
 
-.mapIcon .center {
-	position: absolute;
-	left: 50%;
-	transform: translate(-50%, 0);
-}
+    .mapIcon .center {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
 
-.mapIcon .text {
-	bottom: -11px;
-}
+    .mapIcon .text {
+        bottom: -11px;
+    }
 
-.mapIcon.player {
-	background-position: 0 0;
-}
+    .mapIcon.player {
+        background-position: 0 0;
+    }
 
-.mapIcon.fire {
-	background-position: -32px 0;
-}
+    .mapIcon.fire {
+        background-position: -32px 0;
+    }
 
-.mapIcon.dot {
-	background-position: -64px 0;
-}
+    .mapIcon.dot {
+        background-position: -64px 0;
+    }
 
-.mapIcon.mine {
-	background-position: -96px 0;
-}
+    .mapIcon.mine {
+        background-position: -96px 0;
+    }
 
-.mapIcon.house {
-	background-position: -128px 0;
-}
+    .mapIcon.house {
+        background-position: -128px 0;
+    }
 
-.mapIcon.cave {
-	background-position: 0 -32px;
-}
+    .mapIcon.cave {
+        background-position: 0 -32px;
+    }
 
-.mapIcon.boss {
-	background-position: -32px -32px;
-}
+    .mapIcon.boss {
+        background-position: -32px -32px;
+    }
 
-.mapIcon.start {
-	background-position: -64px -32px;
-}
+    .mapIcon.start {
+        background-position: -64px -32px;
+    }
 
-.mapIcon.ping {
-	background-position: -96px -32px;
-	animation: pulse 1.2s ease-in-out infinite;
-}
+    .mapIcon.ping {
+        background-position: -96px -32px;
+        animation: pulse 1.2s ease-in-out infinite;
+    }
 
 .menuMapIcon {
-	position: static;
-	transform: scale(0.7);
+    position: static;
+    transform: scale(0.7);
 }
 
 .hpBar {
-	border: 1px solid #f55;
-	height: 9px;
-	width: 100%;
-	position: relative;
+    border: 1px solid #f55;
+    height: 9px;
+    width: 100%;
+    position: relative;
 }
 
 .hp {
-	width: 100%;
-	height: 100%;
-	background: #f55;
-	transition: width 0.5s linear;
+    width: 100%;
+    height: 100%;
+    background: #f55;
+    transition: width 0.5s linear;
 }
 
 .hpText {
-	position: absolute;
-	font-size: 10px;
-	line-height: 8px;
-	top: 0;
-	left: 50%;
-	transform: translate(-50%, 0);
-	white-space: nowrap;
+    position: absolute;
+    font-size: 10px;
+    line-height: 8px;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    white-space: nowrap;
 }
 
 .playerListContainer {
-	background: rgba(0, 0, 0, 0.7);
-	color: #fff;
-	padding: 10px 0;
-	position: fixed;
-	top: 0px;
-	right: 0px;
-	font-size: 12px;
-	transition: right 0.3s ease-in-out;
-	z-index: 20;
-	min-width: 100px;
-	text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px 0;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    font-size: 12px;
+    transition: right 0.3s ease-in-out;
+    z-index: 20;
+    min-width: 100px;
+    text-align: center;
 }
 
 .playerListTitle {
-	font-size: 16px;
-	margin-bottom: 6px;
+    font-size: 16px;
+    margin-bottom: 6px;
 }
 
 .playerListEntry {
-	padding: 0 16px;
-	cursor: pointer;
-	padding: 3px 16px;
+    padding: 0 16px;
+    cursor: pointer;
+    padding: 3px 16px;
 }
 
-.playerListEntry.selected {
-	background: rgba(135, 134, 202, 0.75);
-}
+    .playerListEntry.selected {
+        background: rgba(135, 134, 202, 0.75);
+    }
 
 .playerListTut {
-	font-size: 12px;
-	margin-top: 16px;
+    font-size: 12px;
+    margin-top: 16px;
 }
 
 .topMessage {
-	position: fixed;
-	top: 6px;
-	left: 50%;
-	transform: translate(-50%, 0);
-	color: #fff;
-	text-shadow: 0 0 6px #000, 0 0 6px #000, 0 0 3px #000;
-	font-size: 24px;
-	text-align: center;
+    position: fixed;
+    top: 6px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    color: #fff;
+    text-shadow: 0 0 6px #000, 0 0 6px #000, 0 0 3px #000;
+    font-size: 24px;
+    text-align: center;
 }

@@ -9,7 +9,8 @@ using UnityEngine;
 using static ZRoutedRpc;
 using Random = UnityEngine.Random;
 
-namespace WebMap {
+namespace WebMap
+{
     //This attribute is required, and lists metadata for your plugin.
     //The GUID should be a unique ID for this plugin, which is human readable (as it is used in places like the config). I like to use the java package notation, which is "com.[your name here].[your plugin name here]"
     //The name is the name of the plugin that's displayed on load, and the version number just specifies what version the plugin is.
@@ -17,12 +18,13 @@ namespace WebMap {
 
     //This is the main declaration of our plugin class. BepInEx searches for all classes inheriting from BaseUnityPlugin to initialize on startup.
     //BaseUnityPlugin itself inherits from MonoBehaviour, so you can use this as a reference for what you can declare and use in your plugin class: https://docs.unity3d.com/ScriptReference/MonoBehaviour.html
-    public class WebMap : BaseUnityPlugin {
+    public class WebMap : BaseUnityPlugin
+    {
         public const string GUID = "com.kylepaulsen.valheim.webmap";
         public const string NAME = "WebMap";
         public const string VERSION = "1.3.1";
 
-        private static readonly string[] ALLOWED_PINS = {"dot", "fire", "mine", "house", "cave"};
+        private static readonly string[] ALLOWED_PINS = { "dot", "fire", "mine", "house", "cave" };
 
         private static MapDataServer mapDataServer;
         private static string worldDataPath;
@@ -33,7 +35,8 @@ namespace WebMap {
         private bool fogTextureNeedsSaving;
 
         //The Awake() method is run at the very start when the game is initialized.
-        public void Awake() {
+        public void Awake()
+        {
             Harmony harmony = new Harmony("com.kylepaulsen.valheim.webmap");
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
 
@@ -48,19 +51,25 @@ namespace WebMap {
             mapDataServer = new MapDataServer();
 
             string mapImagePath = Path.Combine(worldDataPath, "map");
-            try {
+            try
+            {
                 mapDataServer.mapImageData = File.ReadAllBytes(mapImagePath);
-            } catch(Exception e) {
+            }
+            catch (Exception e)
+            {
                 Debug.Log("WebMap: Failed to read map image data from disk. " + e.Message);
             }
 
             string fogImagePath = Path.Combine(worldDataPath, "fog.png");
-            try {
+            try
+            {
                 Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE);
                 byte[] fogBytes = File.ReadAllBytes(fogImagePath);
                 fogTexture.LoadImage(fogBytes);
                 mapDataServer.fogTexture = fogTexture;
-            } catch(Exception e) {
+            }
+            catch (Exception e)
+            {
                 Debug.Log("WebMap: Failed to read fog image data from disk... Making new fog image..." + e.Message);
                 Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE,
                     TextureFormat.RGB24, false);
@@ -71,9 +80,12 @@ namespace WebMap {
                 byte[] fogPngBytes = fogTexture.EncodeToPNG();
 
                 mapDataServer.fogTexture = fogTexture;
-                try {
+                try
+                {
                     File.WriteAllBytes(fogImagePath, fogPngBytes);
-                } catch {
+                }
+                catch
+                {
                     Debug.Log("WebMap: FAILED TO WRITE FOG FILE!");
                 }
             }
@@ -84,40 +96,53 @@ namespace WebMap {
                 WebMapConfig.SAVE_FOG_TEXTURE_INTERVAL);
 
             string mapPinsFile = Path.Combine(worldDataPath, "pins.csv");
-            try {
+            try
+            {
                 string[] pinsLines = File.ReadAllLines(mapPinsFile);
                 mapDataServer.pins = new List<string>(pinsLines);
-            } catch(Exception e) {
+            }
+            catch (Exception e)
+            {
                 Debug.Log("WebMap: Failed to read pins.csv from disk. " + e.Message);
             }
         }
 
-        public void UpdateFogTexture() {
-            int pixelExploreRadius = (int) Mathf.Ceil(WebMapConfig.EXPLORE_RADIUS / WebMapConfig.PIXEL_SIZE);
+        public void UpdateFogTexture()
+        {
+            int pixelExploreRadius = (int)Mathf.Ceil(WebMapConfig.EXPLORE_RADIUS / WebMapConfig.PIXEL_SIZE);
             int pixelExploreRadiusSquared = pixelExploreRadius * pixelExploreRadius;
             int halfTextureSize = WebMapConfig.TEXTURE_SIZE / 2;
 
-            mapDataServer.players.ForEach(player => {
-                if (player.m_publicRefPos) {
+            mapDataServer.players.ForEach(player =>
+            {
+                if (player.m_publicRefPos)
+                {
                     ZDO zdoData = null;
-                    try {
+                    try
+                    {
                         zdoData = ZDOMan.instance.GetZDO(player.m_characterID);
-                    } catch { }
+                    }
+                    catch { }
 
-                    if (zdoData != null) {
+                    if (zdoData != null)
+                    {
                         Vector3 pos = zdoData.GetPosition();
                         int pixelX = Mathf.RoundToInt(pos.x / WebMapConfig.PIXEL_SIZE + halfTextureSize);
                         int pixelY = Mathf.RoundToInt(pos.z / WebMapConfig.PIXEL_SIZE + halfTextureSize);
-                        for (int y = pixelY - pixelExploreRadius; y <= pixelY + pixelExploreRadius; y++) {
+                        for (int y = pixelY - pixelExploreRadius; y <= pixelY + pixelExploreRadius; y++)
+                        {
                             for (int x = pixelX - pixelExploreRadius; x <= pixelX + pixelExploreRadius; x++)
                                 if (y >= 0 && x >= 0 && y < WebMapConfig.TEXTURE_SIZE &&
-                                    x < WebMapConfig.TEXTURE_SIZE) {
+                                    x < WebMapConfig.TEXTURE_SIZE)
+                                {
                                     int xDiff = pixelX - x;
                                     int yDiff = pixelY - y;
                                     int currentExploreRadiusSquared = xDiff * xDiff + yDiff * yDiff;
-                                    if (currentExploreRadiusSquared < pixelExploreRadiusSquared) {
+                                    if (currentExploreRadiusSquared < pixelExploreRadiusSquared)
+                                    {
                                         Color fogTexColor = mapDataServer.fogTexture.GetPixel(x, y);
-                                        if (fogTexColor != Color.white) {
+                                        if (fogTexColor != Color.white)
+                                        {
                                             fogTextureNeedsSaving = true;
                                             mapDataServer.fogTexture.SetPixel(x, y, Color.white);
                                         }
@@ -129,48 +154,61 @@ namespace WebMap {
             });
         }
 
-        public void SaveFogTexture() {
-            if (mapDataServer.players.Count > 0 && fogTextureNeedsSaving) {
+        public void SaveFogTexture()
+        {
+            if (mapDataServer.players.Count > 0 && fogTextureNeedsSaving)
+            {
                 byte[] pngBytes = mapDataServer.fogTexture.EncodeToPNG();
 
                 // Debug.Log("Saving fog file...");
-                try {
+                try
+                {
                     File.WriteAllBytes(Path.Combine(worldDataPath, "fog.png"), pngBytes);
                     fogTextureNeedsSaving = false;
-                } catch {
+                }
+                catch
+                {
                     Debug.Log("WebMap: FAILED TO WRITE FOG FILE!");
                 }
             }
         }
 
-        public static void SavePins() {
+        public static void SavePins()
+        {
             string mapPinsFile = Path.Combine(worldDataPath, "pins.csv");
-            try {
+            try
+            {
                 File.WriteAllLines(mapPinsFile, mapDataServer.pins);
-            } catch {
+            }
+            catch
+            {
                 Debug.Log("WebMap: FAILED TO WRITE PINS FILE!");
             }
         }
 
         [HarmonyPatch(typeof(ZoneSystem), "Start")]
-        private class ZoneSystemPatch {
+        private class ZoneSystemPatch
+        {
             private static readonly Color DeepWaterColor = new Color(0.36105883f, 0.36105883f, 0.43137255f);
             private static readonly Color ShallowWaterColor = new Color(0.574f, 0.50709206f, 0.47892025f);
             private static readonly Color ShoreColor = new Color(0.1981132f, 0.12241901f, 0.1503943f);
 
-            private static Color GetMaskColor(float wx, float wy, float height, Heightmap.Biome biome) {
+            private static Color GetMaskColor(float wx, float wy, float height, Heightmap.Biome biome)
+            {
                 Color noForest = new Color(0f, 0f, 0f, 0f);
                 Color forest = new Color(1f, 0f, 0f, 0f);
 
                 if (height < ZoneSystem.instance.m_waterLevel) return noForest;
 
-                if (biome == Heightmap.Biome.Meadows) {
+                if (biome == Heightmap.Biome.Meadows)
+                {
                     if (!WorldGenerator.InForest(new Vector3(wx, 0f, wy))) return noForest;
 
                     return forest;
                 }
 
-                if (biome == Heightmap.Biome.Plains) {
+                if (biome == Heightmap.Biome.Plains)
+                {
                     if (WorldGenerator.GetForestFactor(new Vector3(wx, 0f, wy)) >= 0.8f) return noForest;
 
                     return forest;
@@ -181,7 +219,8 @@ namespace WebMap {
                 return noForest;
             }
 
-            private static Color GetPixelColor(Heightmap.Biome biome) {
+            private static Color GetPixelColor(Heightmap.Biome biome)
+            {
                 Color m_meadowsColor = new Color(0.573f, 0.655f, 0.361f);
                 Color m_swampColor = new Color(0.639f, 0.447f, 0.345f);
                 Color m_mountainColor = new Color(1f, 1f, 1f);
@@ -191,7 +230,8 @@ namespace WebMap {
                 Color m_deepnorthColor = new Color(1f, 1f, 1f);
                 Color m_mistlandsColor = new Color(0.325f, 0.325f, 0.325f);
 
-                switch (biome) {
+                switch (biome)
+                {
                     case Heightmap.Biome.Meadows:
                         return m_meadowsColor;
                     case Heightmap.Biome.Swamp:
@@ -215,8 +255,10 @@ namespace WebMap {
                 }
             }
 
-            private static void Postfix(ZoneSystem __instance) {
-                if (mapDataServer.mapImageData != null) {
+            private static void Postfix(ZoneSystem __instance)
+            {
+                if (mapDataServer.mapImageData != null)
+                {
                     Debug.Log("WebMap: MAP ALREADY BUILT!");
                     return;
                 }
@@ -228,10 +270,12 @@ namespace WebMap {
                 Color32[] colorArray = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
                 Color32[] treeMaskArray = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
                 float[] heightArray = new float[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
-                for (int i = 0; i < WebMapConfig.TEXTURE_SIZE; i++) {
-                    for (int j = 0; j < WebMapConfig.TEXTURE_SIZE; j++) {
-                        float wx = (float) (j - num) * WebMapConfig.PIXEL_SIZE + num2;
-                        float wy = (float) (i - num) * WebMapConfig.PIXEL_SIZE + num2;
+                for (int i = 0; i < WebMapConfig.TEXTURE_SIZE; i++)
+                {
+                    for (int j = 0; j < WebMapConfig.TEXTURE_SIZE; j++)
+                    {
+                        float wx = (float)(j - num) * WebMapConfig.PIXEL_SIZE + num2;
+                        float wy = (float)(i - num) * WebMapConfig.PIXEL_SIZE + num2;
                         Heightmap.Biome biome = WorldGenerator.instance.GetBiome(wx, wy);
                         float biomeHeight = WorldGenerator.instance.GetBiomeHeight(biome, wx, wy);
                         colorArray[i * WebMapConfig.TEXTURE_SIZE + j] = GetPixelColor(biome);
@@ -244,7 +288,8 @@ namespace WebMap {
                 Vector3 sunDir = new Vector3(-0.57735f, 0.57735f, 0.57735f);
                 Color[] newColors = new Color[colorArray.Length];
 
-                for (int t = 0; t < colorArray.Length; t++) {
+                for (int t = 0; t < colorArray.Length; t++)
+                {
                     float h = heightArray[t];
 
                     int tUp = t - WebMapConfig.TEXTURE_SIZE;
@@ -288,9 +333,12 @@ namespace WebMap {
                 byte[] pngBytes = newTexture.EncodeToPNG();
 
                 mapDataServer.mapImageData = pngBytes;
-                try {
+                try
+                {
                     File.WriteAllBytes(Path.Combine(worldDataPath, "map"), pngBytes);
-                } catch {
+                }
+                catch
+                {
                     Debug.Log("WebMap: FAILED TO WRITE MAP FILE!");
                 }
 
@@ -320,25 +368,33 @@ namespace WebMap {
         }
 
         [HarmonyPatch(typeof(ZNet), "Start")]
-        private class ZNetPatch {
-            private static void Postfix(List<ZNetPeer> ___m_peers) {
+        private class ZNetPatch
+        {
+            private static void Postfix(List<ZNetPeer> ___m_peers)
+            {
                 mapDataServer.players = ___m_peers;
             }
         }
 
         [HarmonyPatch(typeof(ZRoutedRpc), "HandleRoutedRPC")]
-        private class ZRoutedRpcPatch {
-            private static void Prefix(RoutedRPCData data) {
+        private class ZRoutedRpcPatch
+        {
+            private static void Prefix(RoutedRPCData data)
+            {
                 ZNetPeer peer = ZNet.instance.GetPeer(data.m_senderPeerID);
                 string steamid = "";
-                try {
+                try
+                {
                     steamid = peer.m_rpc.GetSocket().GetHostName();
-                } catch {
+                }
+                catch
+                {
                     // ignored
                 }
 
                 if (data?.m_methodHash == sayMethodHash)
-                    try {
+                    try
+                    {
                         ZDO zdoData = ZDOMan.instance.GetZDO(peer.m_characterID);
                         Vector3 pos = zdoData.GetPosition();
                         ZPackage package = new ZPackage(data.m_parameters.GetArray());
@@ -347,11 +403,13 @@ namespace WebMap {
                         string message = package.ReadString();
                         message = (message == null ? "" : message).Trim();
 
-                        if (message.StartsWith("!pin")) {
+                        if (message.StartsWith("!pin"))
+                        {
                             string[] messageParts = message.Split(' ');
                             string pinType = "dot";
                             int startIdx = 1;
-                            if (messageParts.Length > 1 && Array.Exists(ALLOWED_PINS, e => e == messageParts[1])) {
+                            if (messageParts.Length > 1 && Array.Exists(ALLOWED_PINS, e => e == messageParts[1]))
+                            {
                                 pinType = messageParts[1];
                                 startIdx = 2;
                             }
@@ -371,42 +429,55 @@ namespace WebMap {
 
                             List<string> usersPins = mapDataServer.pins.FindAll(pin => pin.StartsWith(steamid));
                             int numOverflowPins = usersPins.Count - WebMapConfig.MAX_PINS_PER_USER;
-                            for (int t = numOverflowPins; t > 0; t--) {
+                            for (int t = numOverflowPins; t > 0; t--)
+                            {
                                 int pinIdx = mapDataServer.pins.FindIndex(pin => pin.StartsWith(steamid));
                                 mapDataServer.RemovePin(pinIdx);
                             }
 
                             SavePins();
-                        } else if (message.StartsWith("!undoPin")) {
+                        }
+                        else if (message.StartsWith("!undoPin"))
+                        {
                             int pinIdx = mapDataServer.pins.FindLastIndex(pin => pin.StartsWith(steamid));
-                            if (pinIdx > -1) {
+                            if (pinIdx > -1)
+                            {
                                 mapDataServer.RemovePin(pinIdx);
                                 SavePins();
                             }
-                        } else if (message.StartsWith("!deletePin")) {
+                        }
+                        else if (message.StartsWith("!deletePin"))
+                        {
                             string[] messageParts = message.Split(' ');
                             string pinText = "";
                             if (messageParts.Length > 1)
                                 pinText = string.Join(" ", messageParts, 1, messageParts.Length - 1);
 
-                            int pinIdx = mapDataServer.pins.FindLastIndex(pin => {
+                            int pinIdx = mapDataServer.pins.FindLastIndex(pin =>
+                            {
                                 string[] pinParts = pin.Split(',');
                                 return pinParts[0] == steamid && pinParts[pinParts.Length - 1] == pinText;
                             });
 
-                            if (pinIdx > -1) {
+                            if (pinIdx > -1)
+                            {
                                 mapDataServer.RemovePin(pinIdx);
                                 SavePins();
                             }
-                        } else {
+                        }
+                        else
+                        {
                             mapDataServer.BroadcastMessage(data.m_senderPeerID, messageType, userName, message);
                             Debug.Log("WebMap: (say) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
-                    } catch {
+                    }
+                    catch
+                    {
                         // ignored
                     }
                 else if (data?.m_methodHash == chatMessageMethodHash)
-                    try {
+                    try
+                    {
                         ZPackage package = new ZPackage(data.m_parameters.GetArray());
                         Vector3 pos = package.ReadVector3();
                         int messageType = package.ReadInt();
@@ -414,14 +485,17 @@ namespace WebMap {
 
                         if (messageType == (int)Talker.Type.Ping)
                             mapDataServer.BroadcastPing(data.m_senderPeerID, userName, pos);
-                        else {
+                        else
+                        {
                             string message = package.ReadString();
                             message = (message == null ? "" : message).Trim();
 
                             mapDataServer.BroadcastMessage(data.m_senderPeerID, messageType, userName, message);
                             Debug.Log("WebMap: (shout) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
-                    } catch {
+                    }
+                    catch
+                    {
                         // ignored
                     }
             }

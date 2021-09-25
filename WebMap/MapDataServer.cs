@@ -9,8 +9,10 @@ using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 using static WebMap.WebMapConfig;
 
-namespace WebMap {
-    public class WebSocketHandler : WebSocketBehavior {
+namespace WebMap
+{
+    public class WebSocketHandler : WebSocketBehavior
+    {
         // protected override void OnOpen() {
         //     Context.WebSocket.Send("hi " + ID);
         // }
@@ -23,7 +25,8 @@ namespace WebMap {
         // }
     }
 
-    public class MapDataServer {
+    public class MapDataServer
+    {
         private static readonly Dictionary<string, string> contentTypes = new Dictionary<string, string> {
             {"html", "text/html"},
             {"js", "text/javascript"},
@@ -42,22 +45,28 @@ namespace WebMap {
         private readonly string publicRoot;
         private readonly WebSocketServiceHost webSocketHandler;
 
-        public MapDataServer() {
+        public MapDataServer()
+        {
             httpServer = new HttpServer(SERVER_PORT);
             httpServer.AddWebSocketService<WebSocketHandler>("/");
             httpServer.KeepClean = true;
 
             webSocketHandler = httpServer.WebSocketServices["/"];
 
-            broadcastTimer = new System.Threading.Timer(e => {
+            broadcastTimer = new System.Threading.Timer(e =>
+            {
                 string dataString = "";
-                players.ForEach(player => {
+                players.ForEach(player =>
+                {
                     ZDO zdoData = null;
-                    try {
+                    try
+                    {
                         zdoData = ZDOMan.instance.GetZDO(player.m_characterID);
-                    } catch { }
+                    }
+                    catch { }
 
-                    if (zdoData != null) {
+                    if (zdoData != null)
+                    {
                         Vector3 pos = zdoData.GetPosition();
                         float maxHealth = zdoData.GetFloat("max_health", 25f);
                         float health = zdoData.GetFloat("health", maxHealth);
@@ -81,7 +90,8 @@ namespace WebMap {
 
             fileCache = new Dictionary<string, byte[]>();
 
-            httpServer.OnGet += (sender, e) => {
+            httpServer.OnGet += (sender, e) =>
+            {
                 HttpListenerRequest req = e.Request;
                 // Debug.Log("~~~ Got GET Request for: " + req.RawUrl);
 
@@ -91,12 +101,14 @@ namespace WebMap {
             };
         }
 
-        public void Stop() {
+        public void Stop()
+        {
             broadcastTimer.Dispose();
             httpServer.Stop();
         }
 
-        private void ServeStaticFiles(HttpRequestEventArgs e) {
+        private void ServeStaticFiles(HttpRequestEventArgs e)
+        {
             HttpListenerRequest req = e.Request;
             HttpListenerResponse res = e.Response;
 
@@ -108,43 +120,57 @@ namespace WebMap {
             string[] fileParts = requestedFile.Split('.');
             string fileExt = fileParts[fileParts.Length - 1];
 
-            if (contentTypes.ContainsKey(fileExt)) {
+            if (contentTypes.ContainsKey(fileExt))
+            {
                 byte[] requestedFileBytes = new byte[0];
-                if (fileCache.ContainsKey(requestedFile)) {
+                if (fileCache.ContainsKey(requestedFile))
+                {
                     requestedFileBytes = fileCache[requestedFile];
-                } else {
+                }
+                else
+                {
                     string filePath = Path.Combine(publicRoot, requestedFile);
-                    try {
+                    try
+                    {
                         requestedFileBytes = File.ReadAllBytes(filePath);
                         if (CACHE_SERVER_FILES) fileCache.Add(requestedFile, requestedFileBytes);
-                    } catch(Exception ex) {
+                    }
+                    catch (Exception ex)
+                    {
                         Debug.Log("WebMap: FAILED TO READ FILE! " + ex.Message);
                     }
                 }
 
-                if (requestedFileBytes.Length > 0) {
+                if (requestedFileBytes.Length > 0)
+                {
                     res.Headers.Add(HttpResponseHeader.CacheControl, "public, max-age=604800, immutable");
                     res.ContentType = contentTypes[fileExt];
                     res.StatusCode = 200;
                     res.ContentLength64 = requestedFileBytes.Length;
                     res.Close(requestedFileBytes, true);
-                } else {
+                }
+                else
+                {
                     res.StatusCode = 404;
                     res.Close();
                 }
-            } else {
+            }
+            else
+            {
                 res.StatusCode = 404;
                 res.Close();
             }
         }
 
-        private bool ProcessSpecialRoutes(HttpRequestEventArgs e) {
+        private bool ProcessSpecialRoutes(HttpRequestEventArgs e)
+        {
             HttpListenerRequest req = e.Request;
             HttpListenerResponse res = e.Response;
             string rawRequestPath = req.RawUrl;
             byte[] textBytes;
 
-            switch (rawRequestPath) {
+            switch (rawRequestPath)
+            {
                 case "/config":
                     res.Headers.Add(HttpResponseHeader.CacheControl, "no-cache");
                     res.ContentType = "application/json";
@@ -183,7 +209,8 @@ namespace WebMap {
             return false;
         }
 
-        public void ListenAsync() {
+        public void ListenAsync()
+        {
             httpServer.Start();
 
             if (httpServer.IsListening)
@@ -192,7 +219,8 @@ namespace WebMap {
                 Debug.Log("WebMap: HTTP Server Failed To Start !!!");
         }
 
-        public void BroadcastPing(long id, string name, Vector3 position) {
+        public void BroadcastPing(long id, string name, Vector3 position)
+        {
             webSocketHandler.Sessions.Broadcast($"ping\n{id}\n{name}\n{FixedValue(position.x)},{FixedValue(position.z)}");
         }
 
@@ -201,21 +229,24 @@ namespace WebMap {
             webSocketHandler.Sessions.Broadcast($"message\n{id}\n{type}\n{name}\n{message}");
         }
 
-        public void AddPin(string id, string pinId, string type, string name, Vector3 position, string pinText) {
+        public void AddPin(string id, string pinId, string type, string name, Vector3 position, string pinText)
+        {
             pins.Add($"{id},{pinId},{type},{name},{FixedValue(position.x)},{FixedValue(position.z)},{pinText}");
             webSocketHandler.Sessions.Broadcast(
                 $"pin\n{id}\n{pinId}\n{type}\n{name}\n{FixedValue(position.x)},{FixedValue(position.z)}\n{pinText}");
         }
 
-        public void RemovePin(int idx) {
+        public void RemovePin(int idx)
+        {
             string pin = pins[idx];
             string[] pinParts = pin.Split(',');
             pins.RemoveAt(idx);
             webSocketHandler.Sessions.Broadcast($"rmpin\n{pinParts[1]}");
         }
 
-        private static string FixedValue(float f) {
+        private static string FixedValue(float f)
+        {
             return f.ToString("F2", CultureInfo.InvariantCulture);
-        } 
+        }
     }
 }
