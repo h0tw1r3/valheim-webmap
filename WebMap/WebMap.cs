@@ -398,8 +398,10 @@ namespace WebMap {
                                 mapDataServer.RemovePin(pinIdx);
                                 SavePins();
                             }
+                        } else {
+                            mapDataServer.BroadcastMessage(data.m_senderPeerID, messageType, userName, message);
+                            Debug.Log("WebMap: (say) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
-                        //Debug.Log("SAY!!! " + messageType + " | " + userName + " | " + message);
                     } catch {
                         // ignored
                     }
@@ -409,12 +411,16 @@ namespace WebMap {
                         Vector3 pos = package.ReadVector3();
                         int messageType = package.ReadInt();
                         string userName = package.ReadString();
-                        // string message = package.ReadString();
-                        // message = (message == null ? "" : message).Trim();
 
-                        if (messageType == (int) Talker.Type.Ping)
+                        if (messageType == (int)Talker.Type.Ping)
                             mapDataServer.BroadcastPing(data.m_senderPeerID, userName, pos);
-                        // Debug.Log("CHAT!!! " + pos + " | " + messageType + " | " + userName + " | " + message);
+                        else {
+                            string message = package.ReadString();
+                            message = (message == null ? "" : message).Trim();
+
+                            mapDataServer.BroadcastMessage(data.m_senderPeerID, messageType, userName, message);
+                            Debug.Log("WebMap: (shout) " + pos + " | " + messageType + " | " + userName + " | " + message);
+                        }
                     } catch {
                         // ignored
                     }

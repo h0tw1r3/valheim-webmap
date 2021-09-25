@@ -72,6 +72,17 @@ const actions = {
 		actionListeners.rmpin.forEach(func => {
 			func(lines[0]);
 		});
+	},
+	message: (lines) => {
+		const message = {
+			playerId: lines[0],
+			messageType: lines[1],
+			name: lines[2],
+			message: lines[3]
+		};
+		actionListeners.message.forEach(func => {
+			func(message);
+		});
 	}
 };
 

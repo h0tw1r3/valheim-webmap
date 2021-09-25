@@ -2,7 +2,7 @@ import constants from "./constants";
 import websocket from "./websocket";
 import map from "./map";
 import players from "./players";
-import ui from "./ui";
+import ui, { createUi } from "./ui";
 
 const mapImage = document.createElement('img');
 const fogImage = document.createElement('img');
@@ -125,6 +125,18 @@ const setup = async () => {
 
 	websocket.addActionListener('rmpin', (pinid) => {
 		map.removeIconById(pinid);
+	});
+
+	websocket.addActionListener('message', (message) => {
+		console.log(message);
+		const messageEntry = createUi(`
+			<div class="message">
+				<span class="name" data-id="name"></span>: <span class="text" data-id="message"></span>
+			</div>
+		`);
+		messageEntry.ui.name.textContent = message.name;
+		messageEntry.ui.message.textContent = message.message;
+		ui.messageList.appendChild(messageEntry.el);
 	});
 
 	window.addEventListener('resize', () => {
