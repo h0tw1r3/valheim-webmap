@@ -17,7 +17,9 @@ const actions = {
 				id: playerLines[0],
 				name: playerLines[1],
 				health: parseFloat(playerLines[3]),
-				maxHealth: parseFloat(playerLines[4])
+				maxHealth: parseFloat(playerLines[4]),
+				stamina: parseFloat(playerLines[5]),
+				maxStamina: parseFloat(playerLines[6])
 			};
 
 			if (playerLines[2] !== 'hidden') {
