@@ -13,11 +13,15 @@ namespace WebMap {
     //This attribute is required, and lists metadata for your plugin.
     //The GUID should be a unique ID for this plugin, which is human readable (as it is used in places like the config). I like to use the java package notation, which is "com.[your name here].[your plugin name here]"
     //The name is the name of the plugin that's displayed on load, and the version number just specifies what version the plugin is.
-    [BepInPlugin("com.kylepaulsen.valheim.webmap", "WebMap", "1.3.0")]
+    [BepInPlugin(GUID, NAME, VERSION)]
 
     //This is the main declaration of our plugin class. BepInEx searches for all classes inheriting from BaseUnityPlugin to initialize on startup.
     //BaseUnityPlugin itself inherits from MonoBehaviour, so you can use this as a reference for what you can declare and use in your plugin class: https://docs.unity3d.com/ScriptReference/MonoBehaviour.html
     public class WebMap : BaseUnityPlugin {
+        public const string GUID = "com.kylepaulsen.valheim.webmap";
+        public const string NAME = "WebMap";
+        public const string VERSION = "1.3.1";
+
         private static readonly string[] ALLOWED_PINS = {"dot", "fire", "mine", "house", "cave"};
 
         private static MapDataServer mapDataServer;
@@ -42,7 +46,6 @@ namespace WebMap {
             Directory.CreateDirectory(worldDataPath);
 
             mapDataServer = new MapDataServer();
-            mapDataServer.ListenAsync();
 
             string mapImagePath = Path.Combine(worldDataPath, "map");
             try {
@@ -213,10 +216,6 @@ namespace WebMap {
             }
 
             private static void Postfix(ZoneSystem __instance) {
-                Vector3 startPos;
-                ZoneSystem.instance.GetLocationIcon("StartTemple", out startPos);
-                WebMapConfig.WORLD_START_POS = startPos;
-
                 if (mapDataServer.mapImageData != null) {
                     Debug.Log("WebMap: MAP ALREADY BUILT!");
                     return;
@@ -296,6 +295,27 @@ namespace WebMap {
                 }
 
                 Debug.Log("WebMap: BUILDING MAP DONE!");
+            }
+        }
+
+        [HarmonyPatch(typeof(ZoneSystem), "Load")]
+        private class ZoneSystemLoadPatch
+        {
+            private static void Postfix()
+            {
+                ZoneSystem.LocationInstance startLocation;
+                if (ZoneSystem.instance.FindClosestLocation("StartTemple", Vector3.zero, out startLocation))
+                {
+                    var p = startLocation.m_position;
+                    WebMapConfig.WORLD_START_POS = p;
+                    Debug.Log("WebMap: starting point " + WebMapConfig.WORLD_START_POS.ToString());
+                }
+                else
+                {
+                    Debug.Log("WebMap: failed to find starting point");
+                }
+
+                mapDataServer.ListenAsync();
             }
         }
 
