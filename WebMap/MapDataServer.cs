@@ -18,7 +18,7 @@ namespace WebMap
         public int type;
         public string name;
         public string message;
-        public DateTime dateTime;
+        public string ts;
 
         public MapMessage (long id, int type, string name, string message)
         {
@@ -26,7 +26,7 @@ namespace WebMap
             this.type = type;
             this.name = name;
             this.message = message;
-            this.dateTime = DateTime.Now;
+            this.ts = DateTime.UtcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public string ToJson()

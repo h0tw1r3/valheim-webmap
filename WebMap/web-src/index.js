@@ -128,14 +128,23 @@ const setup = async () => {
         map.removeIconById(pinid);
     });
 
+    const tempTable = document.createElement('table');
     websocket.addActionListener('messages', (messages) => {
         messages.forEach((message) => {
             const messageEntry = createUi(`
-                <div class="message">
-		            <span class="name" data-id="name"></span>: <span class="text" data-id="message"></span>
-                </div>
-            `);
+		<tr class="message">
+		    <td class="datetime">
+		        <span class="date" data-id="date"></span>
+		        <span class="time" data-id="time"></span>
+		    </td>
+		    <td class="name" data-id="name"></td>
+		    <td class="text" data-id="message"></td>
+		</tr>
+            `, tempTable);
 
+            var messageDate = new Date(message.ts);
+            messageEntry.ui.date.textContent = messageDate.toLocaleDateString();
+            messageEntry.ui.time.textContent = messageDate.toLocaleTimeString();
             messageEntry.ui.name.textContent = message.name;
             messageEntry.ui.message.textContent = message.message;
             messageEntry.el.classList.add("type" + message.type);
@@ -183,6 +192,14 @@ const setup = async () => {
             }
             map.updateIcons();
         });
+    });
+
+    ui.hideMessageList.addEventListener('change', () => {
+        if (ui.hideMessageList.checked) {
+            ui.messageList.style.left = -ui.messageList.offsetWidth + 'px';
+        } else {
+            ui.messageList.style.left = 0;
+        }
     });
 
     ui.hidePlayerList.addEventListener('change', () => {

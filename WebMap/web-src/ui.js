@@ -5,17 +5,17 @@ allUi.forEach(el => {
 });
 
 const tempDiv = document.createElement('div');
-export const createUi = (html) => {
-    tempDiv.innerHTML = html;
+export const createUi = (html, tempEl = tempDiv) => {
+    tempEl.innerHTML = html;
 
     const uiEls = {};
-    const dataEls = tempDiv.querySelectorAll('[data-id]');
+    const dataEls = tempEl.querySelectorAll('[data-id]');
     dataEls.forEach(el => {
         uiEls[el.dataset.id] = el;
     });
 
     return {
-        el: tempDiv.children[0],
+        el: tempEl.children[0],
         ui: uiEls
     };
 };
