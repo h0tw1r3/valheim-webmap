@@ -50,6 +50,7 @@ To get your environment working, you will need to find and place these .dll file
 * UnityEngine.CoreModule.dll
 * UnityEngine.dll
 * UnityEngine.ImageConversionModule.dll (This one might be harder to find. Try googling.)
+* UnityEngine.JSONSerializeModule.dll (Try googling)
 * UnityEngine.UI.dll
 
 To get the fontend part building, you'll need node installed. After, just do `npm install` to install webpack. Then you can run `npm run build` to build `main.js` which should be included with the other web resources in `WebMap/web`.
