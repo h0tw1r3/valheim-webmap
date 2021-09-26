@@ -13,6 +13,7 @@ This has only been tested on a Valheim dedicated server. I'm not sure this will 
 * Map pings from in game players will show up on the web map as well.
 * Connected players list.
 * Auto follow player feature.
+* Chat messages.
 
 ## Installation
 
@@ -20,7 +21,9 @@ Place the WebMap directory in:
 
 `Steam\steamapps\common\Valheim dedicated server\BepInEx\plugins\WebMap`
 
-Optionally, open `WebMap/config.json` with a text editor and change stuff in there.
+After starting the server for the first time a default configuration file will be created in:
+
+`Steam\steamapps\common\Valheim dedicated server\BepInEx\config`
 
 ## Updating
 
