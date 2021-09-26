@@ -138,6 +138,7 @@ const setup = async () => {
 
             messageEntry.ui.name.textContent = message.name;
             messageEntry.ui.message.textContent = message.message;
+            messageEntry.el.classList.add("type" + message.type);
             ui.messageList.appendChild(messageEntry.el);
         });
         while (document.getElementById('messages').childElementCount > constants.MAX_MESSAGES) {

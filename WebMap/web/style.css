@@ -135,6 +135,11 @@ body .map.zooming {
     color: darkorange;
 }
 
+#messages .type2 .text {
+    color: gold;
+    text-transform: uppercase;
+}
+
 .coords {
     position: fixed;
     right: 8px;
