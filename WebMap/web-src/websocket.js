@@ -17,20 +17,21 @@ const actions = {
         const playerData = [];
         playerSections.forEach(playerSection => {
             const playerLines = playerSection.split('\n');
+            if (typeof playerLines[2] === 'undefined') {
+                return;
+            }
             const newPlayer = {
                 id: playerLines[0],
                 name: playerLines[1],
                 health: parseFloat(playerLines[3]),
                 maxHealth: parseFloat(playerLines[4]),
-                stamina: parseFloat(playerLines[5]),
-                maxStamina: parseFloat(playerLines[6])
             };
 
             if (playerLines[2] !== 'hidden') {
                 const xyz = playerLines[2].split(',').map(parseFloat);
                 newPlayer.x = xyz[0];
-                newPlayer.y = xyz[1];
-                newPlayer.z = xyz[2];
+                newPlayer.z = xyz[1];
+                // newPlayer.y = xyz[1];
             } else {
                 newPlayer.hidden = true;
             }

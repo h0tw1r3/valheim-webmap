@@ -68,6 +68,7 @@ namespace WebMap
         public List<MapMessage> sentMessages = new List<MapMessage>();
         public List<MapMessage> newMessages = new List<MapMessage>();
         public List<ZNetPeer> players = new List<ZNetPeer>();
+        public string lastPlayerData = "init";
         private readonly string publicRoot;
         private readonly WebSocketServiceHost webSocketHandler;
 
@@ -98,18 +99,17 @@ namespace WebMap
                         float health = zdoData.GetFloat("health", maxHealth);
                         maxHealth = Mathf.Max(maxHealth, health);
 
-                        float maxStamina = zdoData.GetFloat("max_stamina", 100f);
-                        float stamina = zdoData.GetFloat("stamina", maxStamina);
-                        maxStamina = Mathf.Max(maxStamina, stamina);
-
                         if (player.m_publicRefPos)
                             dataString +=
-                                $"{player.m_uid}\n{player.m_playerName}\n{pos.x:0.##},{pos.y:0.##},{pos.z:0.##}\n{health:0.##}\n{maxHealth:0.##}\n{stamina:0.##}\n{maxStamina:0.##}\n\n";
+                                $"{player.m_uid}\n{player.m_playerName}\n{pos.x:0.##},{pos.z:0.##}\n{health:0.##}\n{maxHealth:0.##}\n\n";
                         else
                             dataString += $"{player.m_uid}\n{player.m_playerName}\nhidden\n\n";
                     }
                 });
-                if (dataString.Length > 0) webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
+                if (dataString != lastPlayerData) {
+                    webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
+                    lastPlayerData = dataString;
+                }
 
                 if (newMessages.Count > 0)
                 {

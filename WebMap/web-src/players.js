@@ -28,6 +28,17 @@ const followPlayer = (playerMapIcon) => {
 
 const init = () => {
     websocket.addActionListener('players', (players) => {
+        let currentPlayerIds = Object.keys(playerMapIcons);
+        let newPlayerIds = players.map(player => { return player.id });
+        currentPlayerIds.filter(id => !newPlayerIds.includes(id)).forEach((id) => {
+            if (playerMapIcons[id] === followingPlayer) {
+                followPlayer(null);
+            }
+            playerMapIcons[id].playerListEntry.el.remove();
+            map.removeIcon(playerMapIcons[id]);
+            delete playerMapIcons[id];
+        });
+
         players.forEach((player) => {
             let playerMapIcon = playerMapIcons[player.id];
             if (!playerMapIcon) {
@@ -98,22 +109,6 @@ const init = () => {
         });
         map.updateIcons();
     });
-
-    setInterval(() => {
-        // clean up disconnected players.
-        const now = Date.now();
-        Object.keys(playerMapIcons).forEach((key) => {
-            const playerMapIcon = playerMapIcons[key];
-            if (now - playerMapIcon.lastUpdate > 5000) {
-                map.removeIcon(playerMapIcon);
-                if (playerMapIcon === followingPlayer) {
-                    followPlayer(null);
-                }
-                playerMapIcon.playerListEntry.el.remove();
-                delete playerMapIcons[key];
-            }
-        });
-    }, 2000);
 };
 
 export default {
