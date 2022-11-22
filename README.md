@@ -2,7 +2,7 @@
 
 This server side mod creates a web based map that shows live players and allows shared exploration. After port forwarding the correct port, you can share `http://your_ip:port` to anyone else and they can see the map too. **Clients do not need to have any mods installed!**
 
-For players to show up on the map, they must set `visible to other players` in the in-game map screen.
+For players to show up on the map, they must set **visible to other players** in the in-game map screen. Press `m` to bring up the map settings.
 
 This has only been tested on a Valheim dedicated server. I'm not sure this will work with the built in server inclued with the base game.
 
@@ -17,13 +17,13 @@ This has only been tested on a Valheim dedicated server. I'm not sure this will 
 
 ## Installation
 
-Place the WebMap directory in:
+Assuming you have BepInEx installed and working, place the WebMap directory in:
 
-`Steam\steamapps\common\Valheim dedicated server\BepInEx\plugins\WebMap`
+    Steam\steamapps\common\Valheim dedicated server\BepInEx\plugins\WebMap
 
 After starting the server for the first time a default configuration file will be created in:
 
-`Steam\steamapps\common\Valheim dedicated server\BepInEx\config`
+    Steam\steamapps\common\Valheim dedicated server\BepInEx\config
 
 ## Updating
 
@@ -46,21 +46,31 @@ If a player creates too many pins, their oldest pin will be removed. There is a 
 
 ## Development
 
-To get your environment working, you will need to find and place these .dll files in the WebMap/libs directory. These dlls are usually found in:
+To get your environment working, you will need to find and place these .dll files in the WebMap/libs directory. Most of the libraries are found in:
 
 `Steam\steamapps\common\Valheim dedicated server\valheim_server_Data\Managed`
+
 * assembly_valheim.dll
 * UnityEngine.CoreModule.dll
 * UnityEngine.dll
-* UnityEngine.ImageConversionModule.dll (This one might be harder to find. Try googling.)
-* UnityEngine.JSONSerializeModule.dll (Try googling)
 * UnityEngine.UI.dll
 
-To get the fontend part building, you'll need node installed. After, just do `npm install` to install webpack. Then you can run `npm run build` to build `main.js` which should be included with the other web resources in `WebMap/web`.
+You also need some Unity developer libraries (google for them).
+
+* UnityEngine.ImageConversionModule.dll
+* UnityEngine.JSONSerializeModule.dll
+
+To get the fontend part building, you'll need [node] installed. After, just do `npm install` to install webpack. Then you can run `npm run build` to build `main.js` which should be included with the other web resources in `WebMap/web`.
 
 I wanted to get this working as soon as possible, so apollogies for messy code.
 
 ## Licence
 
-When applicable, assume stuff is under the MIT licence ( https://opensource.org/licenses/MIT )
-I am not liable for any damages and there is no warranty etc...
+Where applicable, assume stuff is under the MIT licence.
+
+## Credit
+
+* Currently maintained by [Jeff Clark](https://github.com/h0tw1r3)
+* Original work by [Kyle Paulsen](https://github.com/kylepaulsen)
+
+[node]: https://nodejs.org/en/download/
