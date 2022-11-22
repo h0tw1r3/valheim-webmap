@@ -50,7 +50,7 @@ namespace WebMap
 
             mapDataServer = new MapDataServer();
 
-            string mapImagePath = Path.Combine(worldDataPath, "map");
+            string mapImagePath = Path.Combine(worldDataPath, "map.png");
             try
             {
                 mapDataServer.mapImageData = File.ReadAllBytes(mapImagePath);
@@ -72,7 +72,7 @@ namespace WebMap
             {
                 Debug.Log("WebMap: Failed to read fog image data from disk... Making new fog image..." + e.Message);
                 Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE,
-                    TextureFormat.RGB24, false);
+                    TextureFormat.R8, false);
                 Color32[] fogColors = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
                 for (int t = 0; t < fogColors.Length; t++) fogColors[t] = Color.black;
 
@@ -335,7 +335,7 @@ namespace WebMap
                 mapDataServer.mapImageData = pngBytes;
                 try
                 {
-                    File.WriteAllBytes(Path.Combine(worldDataPath, "map"), pngBytes);
+                    File.WriteAllBytes(Path.Combine(worldDataPath, "map.png"), pngBytes);
                 }
                 catch
                 {
