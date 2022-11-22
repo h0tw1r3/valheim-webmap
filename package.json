@@ -1,12 +1,12 @@
 {
   "name": "webmap",
-  "version": "1.3.1",
+  "version": "2.0.0",
   "description": "A Valheim map viewer for the browser",
   "scripts": {
     "build": "webpack ./WebMap/web-src/index.js -o ./WebMap/web --mode development",
     "build-prod": "webpack ./WebMap/web-src/index.js -o ./WebMap/web --mode production"
   },
-  "author": "Kyle Paulsen <kyle.a.paulsen@gmail.com>",
+  "author": "Jeffrey Clark <h0tw1r3@users.noreply.github.com>",
   "license": "ISC",
   "devDependencies": {
     "webpack": "^5.31.2",

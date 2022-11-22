@@ -20,9 +20,9 @@ namespace WebMap
     //BaseUnityPlugin itself inherits from MonoBehaviour, so you can use this as a reference for what you can declare and use in your plugin class: https://docs.unity3d.com/ScriptReference/MonoBehaviour.html
     public class WebMap : BaseUnityPlugin
     {
-        public const string GUID = "com.kylepaulsen.valheim.webmap";
+        public const string GUID = "com.github.h0tw1r3.valheim.webmap";
         public const string NAME = "WebMap";
-        public const string VERSION = "1.3.1";
+        public const string VERSION = "2.0.0";
 
         private static readonly string[] ALLOWED_PINS = { "dot", "fire", "mine", "house", "cave" };
 
@@ -37,7 +37,7 @@ namespace WebMap
         //The Awake() method is run at the very start when the game is initialized.
         public void Awake()
         {
-            Harmony harmony = new Harmony("com.kylepaulsen.valheim.webmap");
+            Harmony harmony = new Harmony(GUID);
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
 
             string pluginPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
