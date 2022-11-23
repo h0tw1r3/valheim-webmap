@@ -100,15 +100,16 @@ namespace WebMap
                         if (zdoData != null)
                         {
                             Vector3 pos = zdoData.GetPosition();
-                            float maxHealth = zdoData.GetFloat("max_health", 25f);
-                            float health = zdoData.GetFloat("health", maxHealth);
+                            int maxHealth = zdoData.GetInt("max_health", 25);
+                            int health = zdoData.GetInt("health", maxHealth);
                             maxHealth = Mathf.Max(maxHealth, health);
 
-                            if (player.m_publicRefPos)
-                                dataString +=
-                                    $"{player.m_uid}\n{player.m_playerName}\n{pos.x:0.##},{pos.z:0.##}\n{health:0.##}\n{maxHealth:0.##}\n\n";
-                            else
-                                dataString += $"{player.m_uid}\n{player.m_playerName}\nhidden\n\n";
+                            dataString += $"{player.m_uid}\n{player.m_playerName}\n{health}\n{maxHealth}\n";
+                            if (!player.m_publicRefPos)
+                                dataString += "hidden\n";
+                            if (player.m_publicRefPos || WebMapConfig.ALWAYS_VISIBLE || WebMapConfig.ALWAYS_MAP)
+                                dataString += $"{pos.x:0.##},{pos.z:0.##}\n";
+                            dataString += "\n";
                         }
                     });
                     if (dataString != lastPlayerData) {

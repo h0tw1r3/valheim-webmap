@@ -12,13 +12,15 @@ namespace WebMap
         public static int TEXTURE_SIZE = 2048;
         public static int PIXEL_SIZE = 12;
         public static float EXPLORE_RADIUS = 100f;
-        public static float UPDATE_FOG_TEXTURE_INTERVAL = 1f;
+        public static float UPDATE_FOG_TEXTURE_INTERVAL = 2f;
         public static float SAVE_FOG_TEXTURE_INTERVAL = 30f;
         public static int MAX_PINS_PER_USER = 50;
         public static int MAX_MESSAGES = 100;
+        public static bool ALWAYS_MAP = true;
+        public static bool ALWAYS_VISIBLE = false;
 
         public static int SERVER_PORT = 3000;
-        public static double PLAYER_UPDATE_INTERVAL = 0.5;
+        public static double PLAYER_UPDATE_INTERVAL = 1;
         public static bool CACHE_SERVER_FILES;
 
         public static string WORLD_NAME = "";
@@ -62,6 +64,12 @@ namespace WebMap
 
             MAX_MESSAGES = config.Bind("Server", "max_messages", WebMapConfig.MAX_MESSAGES,
                 "How many messages to keep buffered and display to client.").Value;
+
+            ALWAYS_MAP = config.Bind("User", "always_map", WebMapConfig.ALWAYS_MAP,
+                "Update the map to show where hidden players have traveled.").Value;
+
+            ALWAYS_VISIBLE = config.Bind("User", "always_visible", WebMapConfig.ALWAYS_VISIBLE,
+                "Completely ignore the players preference to be hidden.").Value;
         }
 
         public static string GetWorldName()
@@ -97,10 +105,10 @@ namespace WebMap
             config["update_interval"] = PLAYER_UPDATE_INTERVAL;
             config["explore_radius"] = EXPLORE_RADIUS;
             config["max_messages"] = MAX_MESSAGES;
+            config["always_map"] = ALWAYS_MAP;
+            config["always_visible"] = ALWAYS_VISIBLE;
 
             string json = DictionaryToJson(config);
-
-            Debug.Log("Config#: " + json);
             return json;
         }
 
@@ -116,6 +124,8 @@ namespace WebMap
                         return $"\"{d.Key}\": {o.ToString("F2", CultureInfo.InvariantCulture)}";
                     case string o:
                         return $"\"{d.Key}\": \"{o}\"";
+                    case bool o:
+                        return $"\"{d.Key}\": {o.ToString().ToLower()}";
                     case Vector3 o:
                         return $"\"{d.Key}\": \"{o.x.ToString("F2", CultureInfo.InvariantCulture)}," +
                                $"{o.y.ToString("F2", CultureInfo.InvariantCulture)}," +
@@ -124,7 +134,7 @@ namespace WebMap
                         return $"\"{d.Key}\": {d.Value}";
                 }
             });
-            return "{" + string.Join(",", entries) + "}";
+            return "{\n    " + string.Join(",\n    ", entries) + "\n}\n";
         }
     }
 }

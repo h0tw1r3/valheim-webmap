@@ -1,9 +1,12 @@
 import ui, { createUi } from "./ui";
 import websocket from "./websocket";
 import map from "./map";
+import constants from "./constants";
 
 const playerMapIcons = {};
 let followingPlayer;
+let alwaysMap;
+let alwaysVisible;
 
 const followPlayer = (playerMapIcon) => {
     if (followingPlayer) {
@@ -27,6 +30,9 @@ const followPlayer = (playerMapIcon) => {
 };
 
 const init = () => {
+    alwaysMap = constants.ALWAYS_MAP;
+    alwaysVisible = constants.ALWAYS_VISIBLE;
+
     websocket.addActionListener('players', (players) => {
         let currentPlayerIds = Object.keys(playerMapIcons);
         let newPlayerIds = players.map(player => { return player.id });
@@ -44,16 +50,17 @@ const init = () => {
             if (!playerMapIcon) {
                 // new player
                 const playerListEntry = createUi(`
-					<div class="playerListEntry">
-						<div class="name" data-id="name"></div>
-						<div class="hpBar" data-id="hpBar">
-							<div class="hp" data-id="hp"></div>
-							<div class="hpText" data-id="hpText"></div>
-						</div>
-					</div>
-				`);
+                    <div class="playerListEntry">
+                        <div class="name" data-id="name"></div>
+                        <div class="details" data-id="details">
+                            <div class="hpBar" data-id="hpBar">
+                                <div class="hp" data-id="hp"></div>
+                                <div class="hpText" data-id="hpText"></div>
+                            </div>
+                        </div>
+                    </div>
+                `);
                 playerListEntry.ui.name.textContent = player.name;
-                ui.playerList.appendChild(playerListEntry.el);
                 playerMapIcon = {
                     ...player,
                     type: 'player',
@@ -61,10 +68,9 @@ const init = () => {
                     zIndex: 5,
                     playerListEntry
                 };
-                if (!player.hidden) {
-                    map.addIcon(playerMapIcon, false);
-                } else {
-                    playerListEntry.ui.hpBar.style.display = 'none';
+                map.addIcon(playerMapIcon, false);
+                if (player.hidden && !alwaysVisible) {
+                    playerListEntry.ui.details.style.display = 'none';
                 }
                 playerMapIcons[player.id] = playerMapIcon;
                 playerListEntry.el.addEventListener('click', () => {
@@ -76,18 +82,18 @@ const init = () => {
                         followPlayer(playerMapIcon);
                     }
                 });
+
+                ui.playerList.appendChild(playerListEntry.el);
             }
 
-            if (!player.hidden && playerMapIcon.hidden) {
+            if ((alwaysVisible || !player.hidden) && playerMapIcon.hidden) {
                 // no longer hidden
-                playerMapIcon.hidden = player.hidden;
-                map.addIcon(playerMapIcon, false);
-                playerMapIcon.playerListEntry.ui.hpBar.style.display = 'block';
-            } else if (player.hidden && !playerMapIcon.hidden) {
+		map.showIcon(playerMapIcon);
+                playerMapIcon.playerListEntry.ui.details.style.display = 'block';
+            } else if (!alwaysVisible && player.hidden && !playerMapIcon.hidden) {
                 // becomming hidden
-                playerMapIcon.hidden = player.hidden;
-                map.removeIcon(playerMapIcon);
-                playerMapIcon.playerListEntry.ui.hpBar.style.display = 'none';
+                map.hideIcon(playerMapIcon);
+                playerMapIcon.playerListEntry.ui.details.style.display = 'none';
                 if (followingPlayer === playerMapIcon) {
                     followPlayer(null);
                 }
@@ -97,13 +103,10 @@ const init = () => {
             playerMapIcon.x = player.x;
             playerMapIcon.z = player.z;
 
-            if (!player.hidden) {
-                playerMapIcon.playerListEntry.ui.hp.style.width = `${100 * Math.max(player.health / player.maxHealth, 0)
-                    }%`;
-                playerMapIcon.playerListEntry.ui.hpText.textContent = `${Math.round(Math.max(player.health, 0))
-                    } / ${Math.round(player.maxHealth)
-                    }`;
+            playerMapIcon.playerListEntry.ui.hp.style.width = `${100 * Math.max(player.health / player.maxHealth, 0) }%`;
+            playerMapIcon.playerListEntry.ui.hpText.textContent = `${Math.round(Math.max(player.health, 0)) } / ${Math.round(player.maxHealth) }`;
 
+            if (!player.hidden || alwaysMap || alwaysVisible) {
                 map.explore(player.x, player.z);
             }
         });

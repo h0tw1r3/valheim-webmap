@@ -45,6 +45,8 @@ const fetchConfig = fetch('config').then(res => res.json()).then(config => {
     constants.WORLD_START_POSITION = parseVector3(config.world_start_pos);
     constants.DEFAULT_ZOOM = config.default_zoom || 200;
     constants.MAX_MESSAGES = config.max_messages || 100;
+    constants.ALWAYS_MAP = config.always_map;
+    constants.ALWAYS_VISIBLE = config.always_visible;
     document.title = `Valheim WebMap - ${constants.WORLD_NAME}`;
     createStyleSheet(`
 		.mapIcon.player {
@@ -58,13 +60,14 @@ const fetchConfig = fetch('config').then(res => res.json()).then(config => {
 
 const setup = async () => {
     websocket.init();
-    players.init();
 
     await Promise.all([
         fetchMap(),
         fetchFog(),
         fetchConfig
     ]);
+
+    players.init();
 
     map.init({
         mapImage,
@@ -75,7 +78,8 @@ const setup = async () => {
     map.addIcon({
         type: 'start',
         x: constants.WORLD_START_POSITION.x,
-        z: constants.WORLD_START_POSITION.z
+        z: constants.WORLD_START_POSITION.z,
+        static: true
     });
 
     const pings = {};
@@ -181,13 +185,13 @@ const setup = async () => {
     window.addEventListener('mousedown', closeMenu);
     window.addEventListener('touchstart', closeMenu);
 
-    const hideCheckboxes = ui.menu.querySelectorAll('.hideIconCheckbox');
+    const hideCheckboxes = ui.menu.querySelectorAll('.hideIconTypeCheckbox');
     hideCheckboxes.forEach(el => {
         el.addEventListener('change', () => {
-            map.setIconHidden(el.dataset.hide, el.checked || ui.hideAll.checked);
+            map.setIconTypeHidden(el.dataset.hide, el.checked || ui.hideAll.checked);
             if (el.dataset.hide === 'all') {
                 hideCheckboxes.forEach(el2 => {
-                    map.setIconHidden(el2.dataset.hide, el.checked || el2.checked);
+                    map.setIconTypeHidden(el2.dataset.hide, el.checked || el2.checked);
                 });
             }
             map.updateIcons();

@@ -67,10 +67,11 @@ const updateIcons = () => {
         if (!iconObj.el) {
             firstRender = true;
             iconObj.el = createIconEl(iconObj);
-            map.appendChild(iconObj.el);
         }
-        const isIconHidden = hiddenIcons[iconObj.type];
-        iconObj.el.style.display = isIconHidden ? 'none' : 'block';
+
+        const isIconTypeHidden = hiddenIcons[iconObj.type];
+        iconObj.el.style.display = (isIconTypeHidden || iconObj.hidden) ? 'none' : 'block';
+
         if (!firstRender && iconObj.static) {
             return;
         }
@@ -80,6 +81,10 @@ const updateIcons = () => {
 
         iconObj.el.style.left = 100 * imgX / width + '%';
         iconObj.el.style.top = 100 * imgY / height + '%';
+
+        if (firstRender) {
+            map.appendChild(iconObj.el);
+        }
     });
 
     if (followIcon) {
@@ -104,6 +109,34 @@ const addIcon = (iconObj, update = true) => {
     }
 };
 
+const hideIcon = (iconObj) => {
+    const idx = mapIcons.indexOf(iconObj);
+    if (idx > -1 && iconObj.el) {
+        iconObj.hidden = true;
+    }
+};
+
+const hideIconById = (iconId) => {
+    const iconObj = mapIcons.find(icon => icon.id === iconId);
+    if (iconObj) {
+	hideIcon(iconObj);
+    }
+};
+
+const showIcon = (iconObj) => {
+    const idx = mapIcons.indexOf(iconObj);
+    if (idx > -1 && iconObj.el) {
+        iconObj.hidden = false;
+    }
+};
+
+const showIconById = (iconId) => {
+    const iconObj = mapIcons.find(icon => icon.id === iconId);
+    if (iconObj) {
+        showIcon(iconObj);
+    }
+};
+
 const removeIcon = (iconObj) => {
     const idx = mapIcons.indexOf(iconObj);
     if (idx > -1) {
@@ -122,7 +155,7 @@ const removeIconById = (iconId) => {
     }
 };
 
-const setIconHidden = (type, isHidden) => {
+const setIconTypeHidden = (type, isHidden) => {
     hiddenIcons[type] = isHidden;
 };
 
@@ -279,7 +312,11 @@ export default {
     addIcon,
     removeIcon,
     removeIconById,
-    setIconHidden,
+    hideIcon,
+    hideIconById,
+    showIcon,
+    showIconById,
+    setIconTypeHidden,
     explore,
     centerOnIcon,
     setFollowIcon,

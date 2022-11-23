@@ -150,7 +150,7 @@ namespace WebMap
 
             mapDataServer.players.ForEach(player =>
             {
-                if (player.m_publicRefPos)
+                if (player.m_publicRefPos || WebMapConfig.ALWAYS_MAP || WebMapConfig.ALWAYS_VISIBLE)
                 {
                     ZDO zdoData = null;
                     try

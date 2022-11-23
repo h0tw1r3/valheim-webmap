@@ -21,26 +21,23 @@ const actions = {
                 return;
             }
             const newPlayer = {
-                id: playerLines[0],
-                name: playerLines[1],
-                health: parseFloat(playerLines[3]),
-                maxHealth: parseFloat(playerLines[4]),
+                id: playerLines.shift(),
+                name: playerLines.shift(),
+                health: playerLines.shift(),
+                maxHealth: playerLines.shift()
             };
 
-            if (playerLines[2] !== 'hidden') {
-                const xyz = playerLines[2].split(',').map(parseFloat);
+            if (playerLines[0] == 'hidden') {
+                newPlayer.hidden = true;
+                playerLines.shift();
+            }
+            if (typeof playerLines[0] !== 'undefined') {
+                const xyz = playerLines[0].split(',').map(parseFloat);
                 newPlayer.x = xyz[0];
                 newPlayer.z = xyz[1];
-                // newPlayer.y = xyz[1];
-            } else {
-                newPlayer.hidden = true;
             }
             playerData.push(newPlayer);
         });
-        // const fakePlayer = playerData[0];
-        // if (fakePlayer) {
-        // 	playerData.push({ ...fakePlayer, x: fakePlayer.x + 1000, z: fakePlayer.z - 2000, id: 'asd', name: 'lolol' });
-        // }
 
         actionListeners.players.forEach(func => {
             func(playerData);
