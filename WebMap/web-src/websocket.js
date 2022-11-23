@@ -84,6 +84,9 @@ const actions = {
         actionListeners.messages.forEach(func => {
             func(messages);
         });
+    },
+    reload: (lines) => {
+	window.history.forward(1);
     }
 };
 

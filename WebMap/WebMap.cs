@@ -28,27 +28,57 @@ namespace WebMap
 
         private static MapDataServer mapDataServer;
         private static string worldDataPath;
+        private static string mapDataPath;
+        private static string pluginPath;
 
         private static readonly int sayMethodHash = "Say".GetHashCode();
         private static readonly int chatMessageMethodHash = "ChatMessage".GetHashCode();
 
         private bool fogTextureNeedsSaving;
+        private static string currentWorldName;
+
+        private static Harmony harmony;
+
+        private static WebMap __instance;
 
         //The Awake() method is run at the very start when the game is initialized.
         public void Awake()
         {
-            Harmony harmony = new Harmony(GUID);
-            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+            __instance = this;
+            harmony = new Harmony(GUID);
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            string pluginPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            WebMapConfig.ReadConfigFile(Config);
-
-            string mapDataPath = Path.Combine(pluginPath ?? string.Empty, "map_data");
+            pluginPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            mapDataPath = Path.Combine(pluginPath ?? string.Empty, "map_data");
             Directory.CreateDirectory(mapDataPath);
+
+            WebMapConfig.ReadConfigFile(Config);
+        }
+
+        public static WebMap getInstance()
+        {
+            return __instance;
+        }
+        public void NewWorld()
+        {
+            CancelInvoke("UpdateFogTexture");
+            CancelInvoke("SaveFogTexture");
+
+            string worldName = WebMapConfig.GetWorldName();
+            bool forceReload = (currentWorldName != worldName);
+
             worldDataPath = Path.Combine(mapDataPath, WebMapConfig.GetWorldName());
             Directory.CreateDirectory(worldDataPath);
 
-            mapDataServer = new MapDataServer();
+            if (mapDataServer == null) {
+                mapDataServer = new MapDataServer();
+            }
+            else if (forceReload)
+            {
+                Debug.Log($"WebMap: loading a new world! old: #{currentWorldName} new: #{worldName}");
+            }
+
+            currentWorldName = worldName;
 
             string mapImagePath = Path.Combine(worldDataPath, "map.png");
             try
@@ -104,6 +134,11 @@ namespace WebMap
             catch (Exception e)
             {
                 Debug.Log("WebMap: Failed to read pins.csv from disk. " + e.Message);
+            }
+
+            if (forceReload)
+            {
+                mapDataServer.Reload();
             }
         }
 
@@ -257,6 +292,8 @@ namespace WebMap
 
             private static void Postfix(ZoneSystem __instance)
             {
+                WebMap.getInstance().NewWorld();
+
                 if (mapDataServer.mapImageData != null)
                 {
                     Debug.Log("WebMap: MAP ALREADY BUILT!");

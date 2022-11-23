@@ -66,7 +66,6 @@ namespace WebMap
 
         public static string GetWorldName()
         {
-            if (WORLD_NAME != "") return WORLD_NAME;
             if (ZNet.instance != null)
             {
                 WORLD_NAME = ZNet.instance.GetWorldName();

@@ -69,6 +69,7 @@ namespace WebMap
         public List<MapMessage> newMessages = new List<MapMessage>();
         public List<ZNetPeer> players = new List<ZNetPeer>();
         public string lastPlayerData = "init";
+        private bool forceReload = false;
         private readonly string publicRoot;
         private readonly WebSocketServiceHost webSocketHandler;
 
@@ -83,46 +84,51 @@ namespace WebMap
             broadcastTimer = new System.Threading.Timer(e =>
             {
                 string dataString = "";
-                players.ForEach(player =>
-                {
-                    ZDO zdoData = null;
-                    try
+                if (forceReload) {
+                    webSocketHandler.Sessions.Broadcast("reload\n");
+                    forceReload = false;
+                } else {
+                    players.ForEach(player =>
                     {
-                        zdoData = ZDOMan.instance.GetZDO(player.m_characterID);
-                    }
-                    catch { }
+                        ZDO zdoData = null;
+                        try
+                        {
+                            zdoData = ZDOMan.instance.GetZDO(player.m_characterID);
+                        }
+                        catch { }
 
-                    if (zdoData != null)
-                    {
-                        Vector3 pos = zdoData.GetPosition();
-                        float maxHealth = zdoData.GetFloat("max_health", 25f);
-                        float health = zdoData.GetFloat("health", maxHealth);
-                        maxHealth = Mathf.Max(maxHealth, health);
+                        if (zdoData != null)
+                        {
+                            Vector3 pos = zdoData.GetPosition();
+                            float maxHealth = zdoData.GetFloat("max_health", 25f);
+                            float health = zdoData.GetFloat("health", maxHealth);
+                            maxHealth = Mathf.Max(maxHealth, health);
 
-                        if (player.m_publicRefPos)
-                            dataString +=
-                                $"{player.m_uid}\n{player.m_playerName}\n{pos.x:0.##},{pos.z:0.##}\n{health:0.##}\n{maxHealth:0.##}\n\n";
-                        else
-                            dataString += $"{player.m_uid}\n{player.m_playerName}\nhidden\n\n";
-                    }
-                });
-                if (dataString != lastPlayerData) {
-                    webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
-                    lastPlayerData = dataString;
-                }
-
-                if (newMessages.Count > 0)
-                {
-                    List<string> tosend = new List<string>();
-
-                    newMessages.ForEach(message => {
-                        if (WebMapConfig.MAX_MESSAGES < sentMessages.Count) sentMessages.RemoveAt(0);
-                        tosend.Add(message.ToJson());
-                        sentMessages.Add(message);
+                            if (player.m_publicRefPos)
+                                dataString +=
+                                    $"{player.m_uid}\n{player.m_playerName}\n{pos.x:0.##},{pos.z:0.##}\n{health:0.##}\n{maxHealth:0.##}\n\n";
+                            else
+                                dataString += $"{player.m_uid}\n{player.m_playerName}\nhidden\n\n";
+                        }
                     });
-                    if (tosend.Count > 0) webSocketHandler.Sessions.Broadcast("messages\n[" + string.Join(",", tosend) + "]");
-                    newMessages.Clear();
-                    newMessages.TrimExcess();
+                    if (dataString != lastPlayerData) {
+                        webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
+                        lastPlayerData = dataString;
+                    }
+
+                    if (newMessages.Count > 0)
+                    {
+                        List<string> tosend = new List<string>();
+
+                        newMessages.ForEach(message => {
+                            if (WebMapConfig.MAX_MESSAGES < sentMessages.Count) sentMessages.RemoveAt(0);
+                            tosend.Add(message.ToJson());
+                            sentMessages.Add(message);
+                        });
+                        if (tosend.Count > 0) webSocketHandler.Sessions.Broadcast("messages\n[" + string.Join(",", tosend) + "]");
+                        newMessages.Clear();
+                        newMessages.TrimExcess();
+                    }
                 }
             }, null, TimeSpan.Zero, TimeSpan.FromSeconds(PLAYER_UPDATE_INTERVAL));
 
@@ -260,6 +266,11 @@ namespace WebMap
             }
 
             return false;
+        }
+
+        public void Reload()
+        {
+            forceReload = true;
         }
 
         public void ListenAsync()
