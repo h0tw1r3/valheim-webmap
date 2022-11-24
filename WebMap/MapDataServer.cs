@@ -55,7 +55,9 @@ namespace WebMap
             {"html", "text/html"},
             {"js", "text/javascript"},
             {"css", "text/css"},
-            {"png", "image/png"}
+            {"png", "image/png"},
+            {"jpg", "image/jpeg"},
+            {"webp", "image/webp"}
         };
 
         private readonly System.Threading.Timer broadcastTimer;

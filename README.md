@@ -72,5 +72,8 @@ Where applicable, assume stuff is under the MIT licence.
 
 * Currently maintained by [Jeff Clark](https://github.com/h0tw1r3)
 * Original work by [Kyle Paulsen](https://github.com/kylepaulsen)
+* Background by [webtreats], released under the [CC BY 2.0] license.
 
 [node]: https://nodejs.org/en/download/
+[webtreats]: https://www.flickr.com/photos/webtreatsetc/4081217254
+[CC BY 2.0]: https://creativecommons.org/licenses/by/2.0/
