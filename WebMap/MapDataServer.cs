@@ -102,9 +102,9 @@ namespace WebMap
                         if (zdoData != null)
                         {
                             Vector3 pos = zdoData.GetPosition();
-                            int maxHealth = zdoData.GetInt("max_health", 25);
-                            int health = zdoData.GetInt("health", maxHealth);
-                            maxHealth = Mathf.Max(maxHealth, health);
+                            int maxHealth = (int)Math.Ceiling(zdoData.GetFloat("max_health", 25));
+                            int health = (int)Math.Ceiling(zdoData.GetFloat("health", maxHealth));
+                            maxHealth = Math.Max(maxHealth, health);
 
                             dataString += $"{player.m_uid}\n{player.m_playerName}\n{health}\n{maxHealth}\n";
                             if (!player.m_publicRefPos)
