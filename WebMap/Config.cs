@@ -25,7 +25,7 @@ namespace WebMap
 
         public static string WORLD_NAME = "";
         public static Vector3 WORLD_START_POS = Vector3.zero;
-        public static int DEFAULT_ZOOM = 200;
+        public static int DEFAULT_ZOOM = 100;
 
         public static void ReadConfigFile(ConfigFile config)
         {
