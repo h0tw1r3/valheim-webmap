@@ -59,15 +59,11 @@ const fetchConfig = fetch('config').then(res => res.json()).then(config => {
 });
 
 const setup = async () => {
-    websocket.init();
-
     await Promise.all([
         fetchMap(),
         fetchFog(),
         fetchConfig
     ]);
-
-    players.init();
 
     map.init({
         mapImage,
@@ -83,6 +79,7 @@ const setup = async () => {
     });
 
     const pings = {};
+
     websocket.addActionListener('ping', (ping) => {
         let mapIcon = pings[ping.playerId];
         if (!mapIcon) {
@@ -213,6 +210,9 @@ const setup = async () => {
             ui.playerListContainer.style.right = 0;
         }
     });
+
+    players.init();
+    websocket.init();
 };
 
 setup();

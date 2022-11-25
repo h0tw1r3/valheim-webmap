@@ -19,6 +19,7 @@ namespace WebMap
         public static bool ALWAYS_MAP = true;
         public static bool ALWAYS_VISIBLE = false;
         public static bool DEBUG = false;
+	public static bool TEST = false;
 
         public static int SERVER_PORT = 3000;
         public static double PLAYER_UPDATE_INTERVAL = 1;
@@ -74,6 +75,9 @@ namespace WebMap
 
             DEBUG = config.Bind("Server", "debug", WebMapConfig.DEBUG,
                 "Output debugging information.").Value;
+
+            DEBUG = config.Bind("Server", "test", WebMapConfig.TEST,
+                "Enable test features (bugs).").Value;
         }
 
         public static string GetWorldName()

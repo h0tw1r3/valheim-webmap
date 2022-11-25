@@ -5,8 +5,6 @@ import constants from "./constants";
 
 const playerMapIcons = {};
 let followingPlayer;
-let alwaysMap;
-let alwaysVisible;
 
 const followPlayer = (playerMapIcon) => {
     if (followingPlayer) {
@@ -30,9 +28,6 @@ const followPlayer = (playerMapIcon) => {
 };
 
 const init = () => {
-    alwaysMap = constants.ALWAYS_MAP;
-    alwaysVisible = constants.ALWAYS_VISIBLE;
-
     websocket.addActionListener('players', (players) => {
         let currentPlayerIds = Object.keys(playerMapIcons);
         let newPlayerIds = players.map(player => { return player.id });
@@ -69,7 +64,7 @@ const init = () => {
                     playerListEntry
                 };
                 map.addIcon(playerMapIcon, false);
-                if (player.hidden && !alwaysVisible) {
+                if (player.hidden && !constants.ALWAYS_VISIBLE) {
                     playerListEntry.ui.details.style.display = 'none';
                 }
                 playerMapIcons[player.id] = playerMapIcon;
@@ -86,11 +81,11 @@ const init = () => {
                 ui.playerList.appendChild(playerListEntry.el);
             }
 
-            if ((alwaysVisible || !player.hidden) && playerMapIcon.hidden) {
+            if ((constants.ALWAYS_VISIBLE || !player.hidden) && playerMapIcon.hidden) {
                 // no longer hidden
-		map.showIcon(playerMapIcon);
+		        map.showIcon(playerMapIcon);
                 playerMapIcon.playerListEntry.ui.details.style.display = 'block';
-            } else if (!alwaysVisible && player.hidden && !playerMapIcon.hidden) {
+            } else if (!constants.ALWAYS_VISIBLE && (player.hidden && !playerMapIcon.hidden)) {
                 // becomming hidden
                 map.hideIcon(playerMapIcon);
                 playerMapIcon.playerListEntry.ui.details.style.display = 'none';
@@ -106,7 +101,7 @@ const init = () => {
             playerMapIcon.playerListEntry.ui.hp.style.width = `${100 * Math.max(player.health / player.maxHealth, 0) }%`;
             playerMapIcon.playerListEntry.ui.hpText.textContent = `${Math.round(Math.max(player.health, 0)) } / ${Math.round(player.maxHealth) }`;
 
-            if (!player.hidden || alwaysMap || alwaysVisible) {
+            if (!player.hidden || constants.ALWAYS_MAP || constants.ALWAYS_VISIBLE) {
                 map.explore(player.x, player.z);
             }
         });

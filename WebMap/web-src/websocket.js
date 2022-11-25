@@ -30,6 +30,8 @@ const actions = {
             if (playerLines[0] == 'hidden') {
                 newPlayer.hidden = true;
                 playerLines.shift();
+            } else {
+                newPlayer.hidden = false;
             }
             if (typeof playerLines[0] !== 'undefined') {
                 const xyz = playerLines[0].split(',').map(parseFloat);
@@ -109,6 +111,7 @@ const init = () => {
 
     ws.addEventListener('open', () => {
         connectionTries = 0;
+        ws.send('players');
     });
 
     ws.addEventListener('close', () => {

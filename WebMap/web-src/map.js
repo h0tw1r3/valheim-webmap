@@ -61,15 +61,24 @@ const setFollowIcon = (iconObj) => {
     }
 };
 
+let pendingIconUpdate = false;
 const updateIcons = () => {
+    clearTimeout(performUpdateIcons);
+    pendingIconUpdate = true;
+    setTimeout(performUpdateIcons, 250);
+};
+
+const performUpdateIcons = () => {
+    pendingIconUpdate = false;
     mapIcons.forEach(iconObj => {
         let firstRender = false;
         if (!iconObj.el) {
             firstRender = true;
             iconObj.el = createIconEl(iconObj);
+            map.appendChild(iconObj.el);
         }
 
-        const isIconTypeHidden = hiddenIcons[iconObj.type];
+        const isIconTypeHidden = (iconObj.type in hiddenIcons && hiddenIcons[iconObj.type]);
         iconObj.el.style.display = (isIconTypeHidden || iconObj.hidden) ? 'none' : 'block';
 
         if (!firstRender && iconObj.static) {
@@ -81,10 +90,6 @@ const updateIcons = () => {
 
         iconObj.el.style.left = 100 * imgX / width + '%';
         iconObj.el.style.top = 100 * imgY / height + '%';
-
-        if (firstRender) {
-            map.appendChild(iconObj.el);
-        }
     });
 
     if (followIcon) {
@@ -103,6 +108,7 @@ const addIcon = (iconObj, update = true) => {
     if (!iconObj.id) {
         iconObj.id = `id_${Date.now()}_${Math.random()}`;
     }
+
     mapIcons.push(iconObj);
     if (update) {
         updateIcons();
@@ -111,22 +117,24 @@ const addIcon = (iconObj, update = true) => {
 
 const hideIcon = (iconObj) => {
     const idx = mapIcons.indexOf(iconObj);
+    iconObj.hidden = true;
     if (idx > -1 && iconObj.el) {
-        iconObj.hidden = true;
+        iconObj.el.style.display = 'none';
     }
 };
 
 const hideIconById = (iconId) => {
     const iconObj = mapIcons.find(icon => icon.id === iconId);
     if (iconObj) {
-	hideIcon(iconObj);
+        hideIcon(iconObj);
     }
 };
 
 const showIcon = (iconObj) => {
     const idx = mapIcons.indexOf(iconObj);
+    iconObj.hidden = false;
     if (idx > -1 && iconObj.el) {
-        iconObj.hidden = false;
+        iconObj.el.style.display = 'block';
     }
 };
 

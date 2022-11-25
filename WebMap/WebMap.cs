@@ -32,8 +32,8 @@ namespace WebMap
         private static string mapDataPath;
         private static string pluginPath;
 
-        private static readonly int sayMethodHash = "Say".GetHashCode();
-        private static readonly int chatMessageMethodHash = "ChatMessage".GetHashCode();
+        private static int sayMethodHash;
+        private static int chatMessageMethodHash;
 
         private bool fogTextureNeedsSaving;
         private static string currentWorldName;
@@ -54,6 +54,10 @@ namespace WebMap
             Directory.CreateDirectory(mapDataPath);
 
             WebMapConfig.ReadConfigFile(Config);
+
+            sayMethodHash = "Say".GetStableHashCode();
+            chatMessageMethodHash  = "ChatMessage".GetStableHashCode();
+            _ = "Step".GetStableHashCode();
         }
 
         public static WebMap getInstance()
@@ -412,7 +416,7 @@ namespace WebMap
         }
 
         [HarmonyPatch(typeof(ZNet), "Start")]
-        private class ZNetPatch
+        private class ZNetPatchStart
         {
             private static void Postfix(List<ZNetPeer> ___m_peers)
             {
@@ -420,13 +424,29 @@ namespace WebMap
             }
         }
 
+        [HarmonyPatch(typeof(ZNet), "Shutdown")]
+        private class ZNetPatchShutdown
+        {
+            private static void Postfix()
+            {
+                mapDataServer.Stop();
+            }
+        }
+
+
         [HarmonyPatch(typeof(ZRoutedRpc), "HandleRoutedRPC")]
         private class ZRoutedRpcPatch
         {
+            private static string[] ignoreRpc = {"DestroyZDO", "SetEvent", "OnTargeted"};
+
             private static void Prefix(RoutedRPCData data)
             {
+                string methodName = StringExtensionMethods_Patch.GetStableHashName(data.m_methodHash);
+                if (Array.Exists(ignoreRpc, x => x == methodName)) // Ignore noise
+                    return;
+
                 if (WebMapConfig.DEBUG) {
-                    ZLog.Log("HandleRoutedRPC: " + StringExtensionMethods_Patch.GetStableHashName(data.m_methodHash));
+                    ZLog.Log("HandleRoutedRPC: " + methodName);
                 }
 
                 ZNetPeer peer = ZNet.instance.GetPeer(data.m_senderPeerID);
@@ -515,7 +535,9 @@ namespace WebMap
                         }
                         else
                         {
-                            mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
+                            if (messageType != (int)Talker.Type.Whisper) {
+                                mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
+                            }
                             Debug.Log("WebMap: (say) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
                     }
@@ -539,7 +561,7 @@ namespace WebMap
                             message = (message == null ? "" : message).Trim();
 
                             mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
-                            Debug.Log("WebMap: (shout) " + pos + " | " + messageType + " | " + userName + " | " + message);
+                            Debug.Log("WebMap: (chat) " + pos + " | " + messageType + " | " + userName + " | " + message);
                         }
                     }
                     catch

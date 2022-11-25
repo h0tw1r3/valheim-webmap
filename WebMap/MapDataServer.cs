@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 using static WebMap.WebMapConfig;
@@ -39,19 +40,23 @@ namespace WebMap
     {
         protected override void OnOpen()
         {
-            MapDataServer.getInstance().newViewer = true;
+            string endpoint = Context.Headers.Get("X-Forwarded-For");
+            if (endpoint.IsNullOrEmpty()) {
+                endpoint = Context.UserEndPoint.ToString();
+            }
+            Debug.Log("WebMap: new visitor connected from " + endpoint);
             base.OnOpen();
         }
-        // protected override void OnOpen() {
-        //     Context.WebSocket.Send("hi " + ID);
-        // }
 
         // protected override void OnClose(CloseEventArgs e) {
         // }
 
-        // protected override void OnMessage(MessageEventArgs e) {
-        //     Sessions.Broadcast(e.Data);
-        // }
+        protected override void OnMessage(MessageEventArgs e) {
+            if (e.Data.ToString() == "players") {
+                Send(MapDataServer.getInstance().getPlayerResponse(true));
+            }
+            base.OnMessage(e);
+        }
     }
 
     public class MapDataServer
@@ -75,8 +80,7 @@ namespace WebMap
         public List<MapMessage> sentMessages = new List<MapMessage>();
         public List<MapMessage> newMessages = new List<MapMessage>();
         public List<ZNetPeer> players = new List<ZNetPeer>();
-        public string lastPlayerData = "init";
-        public bool newViewer = false;
+        public string lastPlayerResponse = "";
         private bool forceReload = false;
         private readonly string publicRoot;
         private readonly WebSocketServiceHost webSocketHandler;
@@ -99,40 +103,11 @@ namespace WebMap
                     webSocketHandler.Sessions.Broadcast("reload\n");
                     forceReload = false;
                 } else {
-                    players.ForEach(player =>
+                    dataString = getPlayerResponse(false);
+                    if (dataString != lastPlayerResponse)
                     {
-                        ZDO zdoData = null;
-                        try
-                        {
-                            zdoData = ZDOMan.instance.GetZDO(player.m_characterID);
-                        }
-                        catch { }
-
-                        if (zdoData != null)
-                        {
-                            Vector3 pos = zdoData.GetPosition();
-                            int maxHealth = (int)Math.Ceiling(zdoData.GetFloat("max_health", 25));
-                            int health = (int)Math.Ceiling(zdoData.GetFloat("health", maxHealth));
-                            int dead = zdoData.GetBool("dead") ? 1 : 0;
-                            int pvp = zdoData.GetBool("pvp") ? 1 : 0;
-                            int inbed = zdoData.GetBool("inBed") ? 1 : 0;
-
-                            maxHealth = Math.Max(maxHealth, health);
-
-                            dataString += $"{player.m_uid}\n{player.m_playerName}\n{health}\n{maxHealth}\n";
-                            if (!player.m_publicRefPos)
-                                dataString += "hidden\n";
-                            if (player.m_publicRefPos || WebMapConfig.ALWAYS_VISIBLE || WebMapConfig.ALWAYS_MAP)
-                                dataString += $"{pos.x:0.##},{pos.z:0.##}\n";
-                            dataString += $"{dead}{pvp}{inbed}\n";
-                        }
-
-                    });
-                    if (dataString != lastPlayerData || newViewer)
-                    {
-                        webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
-                        lastPlayerData = dataString;
-                        newViewer = false;
+                        webSocketHandler.Sessions.Broadcast(dataString);
+                        lastPlayerResponse = dataString;
                     }
 
                     if (newMessages.Count > 0)
@@ -165,6 +140,47 @@ namespace WebMap
                 ServeStaticFiles(e);
             };
         }
+
+        public string getPlayerResponse(bool sendLast)
+        {
+            if (sendLast && lastPlayerResponse.Length > 0) {
+                return lastPlayerResponse;
+            }
+
+            string dataString = "players\n";
+
+            players.ForEach(player =>
+            {
+                ZDO zdoData = null;
+                try
+                {
+                    zdoData = ZDOMan.instance.GetZDO(player.m_characterID);
+                }
+                catch { }
+
+                if (zdoData != null)
+                {
+                    Vector3 pos = zdoData.GetPosition();
+                    int maxHealth = (int)Math.Ceiling(zdoData.GetFloat("max_health", 25));
+                    int health = (int)Math.Ceiling(zdoData.GetFloat("health", maxHealth));
+                    int dead = zdoData.GetBool("dead") ? 1 : 0;
+                    int pvp = zdoData.GetBool("pvp") ? 1 : 0;
+                    int inbed = zdoData.GetBool("inBed") ? 1 : 0;
+
+                    maxHealth = Math.Max(maxHealth, health);
+
+                    dataString += $"{player.m_uid}\n{player.m_playerName}\n{health}\n{maxHealth}\n";
+                    if (!player.m_publicRefPos)
+                        dataString += "hidden\n";
+                    if (player.m_publicRefPos || WebMapConfig.ALWAYS_VISIBLE || WebMapConfig.ALWAYS_MAP)
+                        dataString += $"{pos.x:0.##},{pos.z:0.##}\n";
+                    dataString += $"{dead}{pvp}{inbed}\n";
+                }
+
+            });
+            return dataString.Trim();
+        }
+
         public static MapDataServer getInstance()
         {
             return __instance;

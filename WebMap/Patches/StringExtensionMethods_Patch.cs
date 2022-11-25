@@ -50,15 +50,30 @@ namespace WebMap.Patches
         }
 
         [HarmonyPatch(typeof(ZSyncAnimation), "GetHash")]
-        [HarmonyPostfix]
-        public static void GetAnimHash(string name, ref int __result)
+        [HarmonyPrefix]
+        public static void GetAnimHash(string name, ref int __result, ref bool __runOriginal)
         {
-            stablehashNamesAnim[__result] = name;
-            stablehashLookupAnim[name] = __result;
-
-            if (WebMapConfig.DEBUG)
+            if (stablehashLookupAnim.TryGetValue(name, out __result))
             {
-                ZLog.Log($"First GetAnimHash: {name} -> {__result}");
+                __runOriginal = false;
+            } else {
+                __runOriginal = true;
+            }
+        }
+
+        [HarmonyPatch(typeof(ZSyncAnimation), "GetHash")]
+        [HarmonyPostfix]
+        public static void AddAnimHash(string name, ref int __result, ref bool __runOriginal)
+        {
+            if (__runOriginal)
+            {
+                stablehashNamesAnim[__result] = name;
+                stablehashLookupAnim[name] = __result;
+
+                if (WebMapConfig.DEBUG)
+                {
+                    ZLog.Log($"First GetAnimHash: {name} -> {__result}");
+                }
             }
         }
 
