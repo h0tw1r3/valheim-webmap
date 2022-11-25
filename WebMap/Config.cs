@@ -22,8 +22,8 @@ namespace WebMap
         public static bool TEST = false;
 
         public static int SERVER_PORT = 3000;
-        public static double PLAYER_UPDATE_INTERVAL = 1;
-        public static bool CACHE_SERVER_FILES;
+        public static float PLAYER_UPDATE_INTERVAL = 1f;
+        public static bool CACHE_SERVER_FILES = true;
 
         public static string WORLD_NAME = "";
         public static Vector3 WORLD_START_POS = Vector3.zero;
@@ -31,52 +31,64 @@ namespace WebMap
 
         public static void ReadConfigFile(ConfigFile config)
         {
-            TEXTURE_SIZE = config.Bind("Texture", "texture_size", 2048,
+            TEXTURE_SIZE = config.Bind("Texture", "texture_size",
+                WebMapConfig.TEXTURE_SIZE,
                 "How large is the map texture? Probably dont change this.").Value;
 
-            PIXEL_SIZE = config.Bind("Texture", "pixel_size", 12,
+            PIXEL_SIZE = config.Bind("Texture", "pixel_size",
+                WebMapConfig.PIXEL_SIZE,
                 "How many in game units does a map pixel represent? Probably dont change this.").Value;
 
-            EXPLORE_RADIUS = config.Bind<float>("Texture", "explore_radius", 100,
+            EXPLORE_RADIUS = config.Bind<float>("Texture", "explore_radius",
+                WebMapConfig.EXPLORE_RADIUS,
                 "A larger explore_radius reveals the map more quickly.").Value;
 
-            UPDATE_FOG_TEXTURE_INTERVAL = config.Bind<float>("Interval", "update_fog_texture_interval", 1,
+            UPDATE_FOG_TEXTURE_INTERVAL = config.Bind<float>("Interval", "update_fog_texture_interval",
+                WebMapConfig.UPDATE_FOG_TEXTURE_INTERVAL,
                 "How often do we update the fog texture on the server in seconds.").Value;
 
-            SAVE_FOG_TEXTURE_INTERVAL = config.Bind<float>("Interval", "save_fog_texture_interval", 30,
+            SAVE_FOG_TEXTURE_INTERVAL = config.Bind<float>("Interval", "save_fog_texture_interval",
+                WebMapConfig.SAVE_FOG_TEXTURE_INTERVAL,
                 "How often do we save the fog texture in seconds.").Value;
 
-            MAX_PINS_PER_USER = config.Bind("User", "max_pins_per_user", 50,
+            MAX_PINS_PER_USER = config.Bind("User", "max_pins_per_user",
+                WebMapConfig.MAX_PINS_PER_USER,
                 "How many pins each client is allowed to make before old ones start being deleted.").Value;
 
-            SERVER_PORT = config.Bind("Server", "server_port", 3000,
+            SERVER_PORT = config.Bind("Server", "server_port",
+                WebMapConfig.SERVER_PORT,
                 "HTTP port for the website. The map will be display on this site.").Value;
 
-            PLAYER_UPDATE_INTERVAL = config.Bind<float>("Interval", "player_update_interval", 0.5f,
+            PLAYER_UPDATE_INTERVAL = config.Bind("Interval", "player_update_interval",
+                WebMapConfig.PLAYER_UPDATE_INTERVAL,
                 "How often do we send position data to web browsers in seconds.").Value;
 
-            CACHE_SERVER_FILES = config.Bind<bool>("Server", "cache_server_files", true,
+            CACHE_SERVER_FILES = config.Bind("Server", "cache_server_files",
+                WebMapConfig.CACHE_SERVER_FILES,
                 "Should the server cache web files to be more performant?").Value;
 
-            DEFAULT_ZOOM = config.Bind("Texture", "default_zoom", 200,
+            DEFAULT_ZOOM = config.Bind("Texture", "default_zoom",
+                WebMapConfig.DEFAULT_ZOOM,
                 "How zoomed in should the web map start at? Higher is more zoomed in.").Value;
 
-            WORLD_START_POS = config.Bind<Vector3>("Server", "world_start_pos", Vector3.zero,
-                "Set the position where the spawn is. y is ignored.").Value;
-
-            MAX_MESSAGES = config.Bind("Server", "max_messages", WebMapConfig.MAX_MESSAGES,
+            MAX_MESSAGES = config.Bind("Server", "max_messages",
+                WebMapConfig.MAX_MESSAGES,
                 "How many messages to keep buffered and display to client.").Value;
 
-            ALWAYS_MAP = config.Bind("User", "always_map", WebMapConfig.ALWAYS_MAP,
+            ALWAYS_MAP = config.Bind("User", "always_map",
+                WebMapConfig.ALWAYS_MAP,
                 "Update the map to show where hidden players have traveled.").Value;
 
-            ALWAYS_VISIBLE = config.Bind("User", "always_visible", WebMapConfig.ALWAYS_VISIBLE,
+            ALWAYS_VISIBLE = config.Bind("User", "always_visible",
+                WebMapConfig.ALWAYS_VISIBLE,
                 "Completely ignore the players preference to be hidden.").Value;
 
-            DEBUG = config.Bind("Server", "debug", WebMapConfig.DEBUG,
+            DEBUG = config.Bind("Server", "debug",
+                WebMapConfig.DEBUG,
                 "Output debugging information.").Value;
 
-            DEBUG = config.Bind("Server", "test", WebMapConfig.TEST,
+            DEBUG = config.Bind("Server", "test",
+                WebMapConfig.TEST,
                 "Enable test features (bugs).").Value;
         }
 
