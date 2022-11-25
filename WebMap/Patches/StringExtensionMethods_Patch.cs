@@ -56,7 +56,9 @@ namespace WebMap.Patches
             if (stablehashLookupAnim.TryGetValue(name, out __result))
             {
                 __runOriginal = false;
-            } else {
+            }
+            else
+            {
                 __runOriginal = true;
             }
         }

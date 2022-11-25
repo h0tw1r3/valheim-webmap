@@ -19,7 +19,7 @@ namespace WebMap
         public static bool ALWAYS_MAP = true;
         public static bool ALWAYS_VISIBLE = false;
         public static bool DEBUG = false;
-	public static bool TEST = false;
+        public static bool TEST = false;
 
         public static int SERVER_PORT = 3000;
         public static double PLAYER_UPDATE_INTERVAL = 1;

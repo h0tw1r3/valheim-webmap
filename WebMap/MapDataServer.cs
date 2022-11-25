@@ -21,7 +21,7 @@ namespace WebMap
         public string message;
         public string ts;
 
-        public MapMessage (long id, int type, string name, string message)
+        public MapMessage(long id, int type, string name, string message)
         {
             this.id = id;
             this.type = type;
@@ -41,7 +41,8 @@ namespace WebMap
         protected override void OnOpen()
         {
             string endpoint = Context.Headers.Get("X-Forwarded-For");
-            if (endpoint.IsNullOrEmpty()) {
+            if (endpoint.IsNullOrEmpty())
+            {
                 endpoint = Context.UserEndPoint.ToString();
             }
             Debug.Log("WebMap: new visitor connected from " + endpoint);
@@ -51,8 +52,10 @@ namespace WebMap
         // protected override void OnClose(CloseEventArgs e) {
         // }
 
-        protected override void OnMessage(MessageEventArgs e) {
-            if (e.Data.ToString() == "players") {
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            if (e.Data.ToString() == "players")
+            {
                 Send(MapDataServer.getInstance().getPlayerResponse(true));
             }
             base.OnMessage(e);
@@ -99,10 +102,13 @@ namespace WebMap
             broadcastTimer = new System.Threading.Timer(e =>
             {
                 string dataString = "";
-                if (forceReload) {
+                if (forceReload)
+                {
                     webSocketHandler.Sessions.Broadcast("reload\n");
                     forceReload = false;
-                } else {
+                }
+                else
+                {
                     dataString = getPlayerResponse(false);
                     if (dataString != lastPlayerResponse)
                     {
@@ -114,7 +120,8 @@ namespace WebMap
                     {
                         List<string> tosend = new List<string>();
 
-                        newMessages.ForEach(message => {
+                        newMessages.ForEach(message =>
+                        {
                             if (WebMapConfig.MAX_MESSAGES < sentMessages.Count) sentMessages.RemoveAt(0);
                             tosend.Add(message.ToJson());
                             sentMessages.Add(message);
@@ -143,7 +150,8 @@ namespace WebMap
 
         public string getPlayerResponse(bool sendLast)
         {
-            if (sendLast && lastPlayerResponse.Length > 0) {
+            if (sendLast && lastPlayerResponse.Length > 0)
+            {
                 return lastPlayerResponse;
             }
 

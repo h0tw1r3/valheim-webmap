@@ -56,7 +56,7 @@ namespace WebMap
             WebMapConfig.ReadConfigFile(Config);
 
             sayMethodHash = "Say".GetStableHashCode();
-            chatMessageMethodHash  = "ChatMessage".GetStableHashCode();
+            chatMessageMethodHash = "ChatMessage".GetStableHashCode();
             _ = "Step".GetStableHashCode();
         }
 
@@ -81,7 +81,8 @@ namespace WebMap
             worldDataPath = Path.Combine(mapDataPath, WebMapConfig.GetWorldName());
             Directory.CreateDirectory(worldDataPath);
 
-            if (mapDataServer == null) {
+            if (mapDataServer == null)
+            {
                 mapDataServer = new MapDataServer();
             }
             else if (forceReload)
@@ -437,7 +438,7 @@ namespace WebMap
         [HarmonyPatch(typeof(ZRoutedRpc), "HandleRoutedRPC")]
         private class ZRoutedRpcPatch
         {
-            private static string[] ignoreRpc = {"DestroyZDO", "SetEvent", "OnTargeted"};
+            private static string[] ignoreRpc = { "DestroyZDO", "SetEvent", "OnTargeted" };
 
             private static void Prefix(RoutedRPCData data)
             {
@@ -445,7 +446,8 @@ namespace WebMap
                 if (Array.Exists(ignoreRpc, x => x == methodName)) // Ignore noise
                     return;
 
-                if (WebMapConfig.DEBUG) {
+                if (WebMapConfig.DEBUG)
+                {
                     ZLog.Log("HandleRoutedRPC: " + methodName);
                 }
 
@@ -535,7 +537,8 @@ namespace WebMap
                         }
                         else
                         {
-                            if (messageType != (int)Talker.Type.Whisper) {
+                            if (messageType != (int)Talker.Type.Whisper)
+                            {
                                 mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
                             }
                             Debug.Log("WebMap: (say) " + pos + " | " + messageType + " | " + userName + " | " + message);
