@@ -1,6 +1,6 @@
 {
   "name": "webmap",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A Valheim map viewer for the browser",
   "scripts": {
     "build": "webpack ./WebMap/web-src/index.js -o ./WebMap/web --mode development",
