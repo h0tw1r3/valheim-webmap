@@ -37,6 +37,11 @@ namespace WebMap
 
     public class WebSocketHandler : WebSocketBehavior
     {
+        protected override void OnOpen()
+        {
+            MapDataServer.getInstance().newViewer = true;
+            base.OnOpen();
+        }
         // protected override void OnOpen() {
         //     Context.WebSocket.Send("hi " + ID);
         // }
@@ -71,12 +76,16 @@ namespace WebMap
         public List<MapMessage> newMessages = new List<MapMessage>();
         public List<ZNetPeer> players = new List<ZNetPeer>();
         public string lastPlayerData = "init";
+        public bool newViewer = false;
         private bool forceReload = false;
         private readonly string publicRoot;
         private readonly WebSocketServiceHost webSocketHandler;
+        private static MapDataServer __instance;
 
         public MapDataServer()
         {
+            __instance = this;
+
             httpServer = new HttpServer(SERVER_PORT);
             httpServer.AddWebSocketService<WebSocketHandler>("/");
             httpServer.KeepClean = true;
@@ -104,6 +113,10 @@ namespace WebMap
                             Vector3 pos = zdoData.GetPosition();
                             int maxHealth = (int)Math.Ceiling(zdoData.GetFloat("max_health", 25));
                             int health = (int)Math.Ceiling(zdoData.GetFloat("health", maxHealth));
+                            int dead = zdoData.GetBool("dead") ? 1 : 0;
+                            int pvp = zdoData.GetBool("pvp") ? 1 : 0;
+                            int inbed = zdoData.GetBool("inBed") ? 1 : 0;
+
                             maxHealth = Math.Max(maxHealth, health);
 
                             dataString += $"{player.m_uid}\n{player.m_playerName}\n{health}\n{maxHealth}\n";
@@ -111,12 +124,15 @@ namespace WebMap
                                 dataString += "hidden\n";
                             if (player.m_publicRefPos || WebMapConfig.ALWAYS_VISIBLE || WebMapConfig.ALWAYS_MAP)
                                 dataString += $"{pos.x:0.##},{pos.z:0.##}\n";
-                            dataString += "\n";
+                            dataString += $"{dead}{pvp}{inbed}\n";
                         }
+
                     });
-                    if (dataString != lastPlayerData) {
+                    if (dataString != lastPlayerData || newViewer)
+                    {
                         webSocketHandler.Sessions.Broadcast("players\n" + dataString.Trim());
                         lastPlayerData = dataString;
+                        newViewer = false;
                     }
 
                     if (newMessages.Count > 0)
@@ -149,7 +165,10 @@ namespace WebMap
                 ServeStaticFiles(e);
             };
         }
-
+        public static MapDataServer getInstance()
+        {
+            return __instance;
+        }
         public void Stop()
         {
             broadcastTimer.Dispose();
