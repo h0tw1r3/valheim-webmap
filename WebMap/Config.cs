@@ -18,6 +18,7 @@ namespace WebMap
         public static int MAX_MESSAGES = 100;
         public static bool ALWAYS_MAP = true;
         public static bool ALWAYS_VISIBLE = false;
+        public static bool DEBUG = false;
 
         public static int SERVER_PORT = 3000;
         public static double PLAYER_UPDATE_INTERVAL = 1;
@@ -70,6 +71,9 @@ namespace WebMap
 
             ALWAYS_VISIBLE = config.Bind("User", "always_visible", WebMapConfig.ALWAYS_VISIBLE,
                 "Completely ignore the players preference to be hidden.").Value;
+
+            DEBUG = config.Bind("Server", "debug", WebMapConfig.DEBUG,
+                "Output debugging information.").Value;
         }
 
         public static string GetWorldName()

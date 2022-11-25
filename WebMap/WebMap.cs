@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using WebMap.Patches;
 using BepInEx;
 using HarmonyLib;
 using UnityEngine;
@@ -59,6 +60,12 @@ namespace WebMap
         {
             return __instance;
         }
+
+        public void OnDestroy()
+        {
+            Config.Save();
+        }
+
         public void NewWorld()
         {
             CancelInvoke("UpdateFogTexture");
@@ -418,6 +425,10 @@ namespace WebMap
         {
             private static void Prefix(RoutedRPCData data)
             {
+                if (WebMapConfig.DEBUG) {
+                    ZLog.Log("HandleRoutedRPC: " + StringExtensionMethods_Patch.GetStableHashName(data.m_methodHash));
+                }
+
                 ZNetPeer peer = ZNet.instance.GetPeer(data.m_senderPeerID);
                 string steamid = "";
                 try
