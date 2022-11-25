@@ -15,9 +15,11 @@ This has only been tested on a Valheim dedicated server. I'm not sure this will 
 * Auto follow player feature.
 * Chat messages.
 
+![screenshot](screenshot.webp)
+
 ## Installation
 
-Assuming you have BepInEx installed and working, place the WebMap directory in:
+Assuming you have [BepInEx] installed and working, place the WebMap directory in:
 
     Steam\steamapps\common\Valheim dedicated server\BepInEx\plugins\WebMap
 
@@ -74,6 +76,7 @@ Where applicable, assume stuff is under the MIT licence.
 * Original work by [Kyle Paulsen](https://github.com/kylepaulsen)
 * Background by [webtreats], released under the [CC BY 2.0] license.
 
+[BepInEx]: https://github.com/BepInEx/BepInEx
 [node]: https://nodejs.org/en/download/
 [webtreats]: https://www.flickr.com/photos/webtreatsetc/4081217254
 [CC BY 2.0]: https://creativecommons.org/licenses/by/2.0/
