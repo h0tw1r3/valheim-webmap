@@ -81,6 +81,16 @@ const performUpdateIcons = () => {
         const isIconTypeHidden = (iconObj.type in hiddenIcons && hiddenIcons[iconObj.type]);
         iconObj.el.style.display = (isIconTypeHidden || iconObj.hidden) ? 'none' : 'block';
 
+        if (iconObj.flags) {
+            Object.keys(iconObj.flags).forEach(key => {
+                if (iconObj.flags[key]) {
+                    iconObj.el.classList.add(key);
+                } else {
+                    iconObj.el.classList.remove(key);
+                }
+            });
+        }
+
         if (!firstRender && iconObj.static) {
             return;
         }

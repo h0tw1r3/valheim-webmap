@@ -29,6 +29,11 @@ namespace WebMap
         public static Vector3 WORLD_START_POS = Vector3.zero;
         public static int DEFAULT_ZOOM = 100;
 
+        public static string DISCORD_WEBHOOK = "";
+        public static string DISCORD_INVITE_URL = "";
+
+        public static string URL = "";
+
         public static void ReadConfigFile(ConfigFile config)
         {
             TEXTURE_SIZE = config.Bind("Texture", "texture_size",
@@ -90,6 +95,18 @@ namespace WebMap
             DEBUG = config.Bind("Server", "test",
                 WebMapConfig.TEST,
                 "Enable test features (bugs).").Value;
+
+            DISCORD_WEBHOOK = config.Bind("Server", "discord_webhook",
+                WebMapConfig.DISCORD_WEBHOOK,
+                "Discord webhook URL").Value;
+
+            DISCORD_INVITE_URL = config.Bind("Server", "discord_invite_url",
+                WebMapConfig.DISCORD_INVITE_URL,
+                "Optional Discord invite URL to be added to the webpage.").Value;
+
+            URL = config.Bind("Server", "webmap_url",
+                WebMapConfig.URL,
+                "URL to view the web map.").Value;
         }
 
         public static string GetWorldName()

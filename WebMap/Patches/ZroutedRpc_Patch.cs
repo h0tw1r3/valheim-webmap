@@ -10,7 +10,7 @@ namespace WebMap.Patches
     [HarmonyPatch]
     internal class ZRoutedRpc_Patch
     {
-        private static string[] ignoreRpc = { "DestroyZDO", "SetEvent", "OnTargeted" };
+        private static string[] ignoreRpc = { "DestroyZDO", "SetEvent", "OnTargeted", "Step" };
 
         [HarmonyPatch(typeof(ZRoutedRpc), "InvokeRoutedRPC", new Type[] { typeof(long), typeof(ZDOID), typeof(string), typeof(object[]) })]
         [HarmonyPrefix]

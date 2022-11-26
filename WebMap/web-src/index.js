@@ -147,9 +147,12 @@ const setup = async () => {
             messageEntry.ui.date.textContent = messageDate.toLocaleDateString();
             messageEntry.ui.time.textContent = messageDate.toLocaleTimeString();
             messageEntry.ui.name.textContent = message.name;
-            messageEntry.ui.message.textContent = message.message;
-            messageEntry.el.classList.add("type" + message.type);
-            ui.messageList.appendChild(messageEntry.el);
+            messageEntry.ui.message. innerHTML = markdown(message.message);
+            if (message.name == "Server") {
+                messageEntry.el.firstChild.classList.add("server");
+            }
+            messageEntry.el.firstChild.classList.add("type" + message.type);
+            ui.messageList.appendChild(messageEntry.el.firstChild);
         });
         while (document.getElementById('messages').childElementCount > constants.MAX_MESSAGES) {
             document.getElementById('messages').childNodes[0].remove();

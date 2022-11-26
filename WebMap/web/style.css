@@ -161,6 +161,14 @@ body .map.zooming {
     text-transform: uppercase;
 }
 
+#messages .server .name {
+    color: deepskyblue;
+}
+
+#messages td > p {
+    display: contents;
+}
+
 .coords {
     position: fixed;
     right: 8px;
@@ -174,7 +182,7 @@ body .map.zooming {
     width: 32px;
     height: 32px;
     background-image: url('mapIcons.png');
-    background-size: 160px;
+    background-size: 192px;
     transform: translate(-50%, -50%);
 }
 
@@ -190,6 +198,7 @@ body .map.zooming {
 
     .mapIcon.player {
         background-position: 0 0;
+        filter: hue-rotate(240deg);
     }
 
     .mapIcon.fire {
@@ -224,7 +233,12 @@ body .map.zooming {
         background-position: -96px -32px;
         animation: pulse 1.2s ease-in-out infinite;
     }
-
+    .mapIcon.dead {
+        background-position: -128px -32px;
+    }
+    .mapIcon.pvp {
+        filter: hue-rotate(0deg) !important;
+    }
 .menuMapIcon {
     position: static;
     transform: scale(0.7);

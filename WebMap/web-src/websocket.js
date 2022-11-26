@@ -24,7 +24,12 @@ const actions = {
                 id: playerLines.shift(),
                 name: playerLines.shift(),
                 health: playerLines.shift(),
-                maxHealth: playerLines.shift()
+                maxHealth: playerLines.shift(),
+                flags: {
+                    dead: false,
+                    pvp: false,
+                    inbed: false,
+                },
             };
 
             if (playerLines[0] == 'hidden') {
@@ -34,9 +39,18 @@ const actions = {
                 newPlayer.hidden = false;
             }
             if (typeof playerLines[0] !== 'undefined') {
-                const xyz = playerLines[0].split(',').map(parseFloat);
+                const xyz = playerLines.shift().split(',').map(parseFloat);
                 newPlayer.x = xyz[0];
                 newPlayer.z = xyz[1];
+            }
+            if (typeof playerLines[0] !== 'undefined') {
+                const flags = playerLines.shift();
+                const flag_types = ['dead', 'pvp', 'inbed'];
+                console.log(flags);
+                for (let i = 0; i < flag_types.length; i++) {
+                    console.log(i + " " + flag_types[i] + " " + flags[i]);
+                    newPlayer.flags[flag_types[i]] = Boolean(Number(flags[i]));
+                }
             }
             playerData.push(newPlayer);
         });

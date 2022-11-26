@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -27,6 +27,7 @@ namespace WebMap
 
         private static readonly string[] ALLOWED_PINS = { "dot", "fire", "mine", "house", "cave" };
 
+        public DiscordWebHook discordWebHook;
         private static MapDataServer mapDataServer;
         private static string worldDataPath;
         private static string mapDataPath;
@@ -37,6 +38,7 @@ namespace WebMap
 
         private bool fogTextureNeedsSaving;
         private static string currentWorldName;
+        public static Dictionary<string, object> serverInfo;
 
         private static Harmony harmony;
 
@@ -55,6 +57,8 @@ namespace WebMap
 
             WebMapConfig.ReadConfigFile(Config);
 
+            discordWebHook = new DiscordWebHook(WebMapConfig.DISCORD_WEBHOOK);
+
             sayMethodHash = "Say".GetStableHashCode();
             chatMessageMethodHash = "ChatMessage".GetStableHashCode();
             _ = "Step".GetStableHashCode();
@@ -68,6 +72,42 @@ namespace WebMap
         public void OnDestroy()
         {
             Config.Save();
+        }
+
+        public void SetServerInfo(bool openServer, bool publicServer, string serverName, string password, string worldName, string worldSeed)
+        {
+            serverInfo = new Dictionary<string, object>();
+            serverInfo.Add("openServer", openServer);
+            serverInfo.Add("publicServer", publicServer);
+            serverInfo.Add("serverName", serverName);
+            serverInfo.Add("password", password);
+            serverInfo.Add("worldName", worldName);
+            serverInfo.Add("worldSeed", worldSeed);
+        }
+
+        public void NotifyOnline()
+        {
+            discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** is *online* 🟢\n💻 {AccessTools.Method(typeof(ZNet), "GetPublicIP").Invoke(ZNet.instance, new object[] { })}:{ZNet.instance.m_hostPort}\n🔑 {serverInfo["password"]}\n🗺 {WebMapConfig.URL}");
+        }
+
+        public void NotifyOffline()
+        {
+            discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** is *offline* 🔴");
+        }
+
+        public void NotifyJoin(ZNetPeer peer)
+        {
+            string message = $"player _{peer.m_playerName}_ joined";
+            discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** {message}");
+            mapDataServer.AddMessage(peer.m_uid, (int)Talker.Type.Normal, "Server", message);
+        }
+
+        public void NotifyLeave(ZNetPeer peer)
+        {
+            string message = $"player _{peer.m_playerName}_ left";
+            discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** {message}");
+            MessageHud.instance.MessageAll(MessageHud.MessageType.Center, message);
+            mapDataServer.AddMessage(peer.m_uid, (int)Talker.Type.Normal, "Server", message);
         }
 
         public void NewWorld()
@@ -412,6 +452,8 @@ namespace WebMap
                     Debug.Log("WebMap: failed to find starting point");
                 }
 
+                WebMap.getInstance().NotifyOnline();
+
                 mapDataServer.ListenAsync();
             }
         }
@@ -431,14 +473,47 @@ namespace WebMap
             private static void Postfix()
             {
                 mapDataServer.Stop();
+                WebMap.getInstance().NotifyOffline();
             }
         }
 
+        [HarmonyPatch(typeof(ZNet), "SetServer")]
+        private class ZNetPatchSetServer
+        {
+            private static void Postfix(bool server, bool openServer, bool publicServer, string serverName, string password, World world)
+            {
+                WebMap.getInstance().SetServerInfo(openServer, publicServer, serverName, password, world.m_name, world.m_seedName);
+            }
+        }
+
+        [HarmonyPatch(typeof(ZNet), "Disconnect")]
+        private class ZNetPatchDisconnect
+        {
+            private static void Prefix(ref ZNetPeer peer)
+            {
+                if (!peer.m_server)
+                {
+                    WebMap.getInstance().NotifyLeave(peer);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(ZRoutedRpc), "AddPeer")]
+        private class ZRoutedRpcAddPeerPatch
+        {
+            private static void Postfix(ZNetPeer peer)
+            {
+                if (!peer.m_server)
+                {
+                    WebMap.getInstance().NotifyJoin(peer);
+                }
+            }
+        }
 
         [HarmonyPatch(typeof(ZRoutedRpc), "HandleRoutedRPC")]
         private class ZRoutedRpcPatch
         {
-            private static string[] ignoreRpc = { "DestroyZDO", "SetEvent", "OnTargeted" };
+            private static string[] ignoreRpc = { "DestroyZDO", "SetEvent", "OnTargeted", "Step" };
 
             private static void Prefix(RoutedRPCData data)
             {

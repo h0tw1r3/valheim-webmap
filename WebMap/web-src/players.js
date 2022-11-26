@@ -97,6 +97,9 @@ const init = () => {
             playerMapIcon.lastUpdate = Date.now();
             playerMapIcon.x = player.x;
             playerMapIcon.z = player.z;
+            playerMapIcon.flags = player.flags;
+            console.log(player.flags);
+            console.log(playerMapIcon.flags);
 
             playerMapIcon.playerListEntry.ui.hp.style.width = `${100 * Math.max(player.health / player.maxHealth, 0) }%`;
             playerMapIcon.playerListEntry.ui.hpText.textContent = `${Math.round(Math.max(player.health, 0)) } / ${Math.round(player.maxHealth) }`;
