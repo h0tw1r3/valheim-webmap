@@ -356,6 +356,7 @@ namespace WebMap
 
                 int num = WebMapConfig.TEXTURE_SIZE / 2;
                 float num2 = WebMapConfig.PIXEL_SIZE / 2f;
+                Color mask;
                 Color32[] colorArray = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
                 Color32[] treeMaskArray = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
                 float[] heightArray = new float[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
@@ -366,7 +367,7 @@ namespace WebMap
                         float wx = (float)(j - num) * WebMapConfig.PIXEL_SIZE + num2;
                         float wy = (float)(i - num) * WebMapConfig.PIXEL_SIZE + num2;
                         Heightmap.Biome biome = WorldGenerator.instance.GetBiome(wx, wy);
-                        float biomeHeight = WorldGenerator.instance.GetBiomeHeight(biome, wx, wy);
+                        float biomeHeight = WorldGenerator.instance.GetBiomeHeight(biome, wx, wy, out mask);
                         colorArray[i * WebMapConfig.TEXTURE_SIZE + j] = GetPixelColor(biome);
                         treeMaskArray[i * WebMapConfig.TEXTURE_SIZE + j] = GetMaskColor(wx, wy, biomeHeight, biome);
                         heightArray[i * WebMapConfig.TEXTURE_SIZE + j] = biomeHeight;
