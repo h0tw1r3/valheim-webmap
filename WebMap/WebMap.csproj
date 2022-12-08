@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.1.0</Version>
+    <Version>2.5.0</Version>
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
