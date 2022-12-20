@@ -182,7 +182,7 @@ namespace WebMap
                         dataString += "hidden\n";
                     if (player.m_publicRefPos || WebMapConfig.ALWAYS_VISIBLE || WebMapConfig.ALWAYS_MAP)
                         dataString += $"{pos.x:0.##},{pos.z:0.##}\n";
-                    dataString += $"{dead}{pvp}{inbed}\n";
+                    dataString += $"{dead}{pvp}{inbed}\n\n";
                 }
 
             });
