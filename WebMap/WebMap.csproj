@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.5.1</Version>
+    <Version>2.5.2</Version>
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <Copyright>(c) 2022 Various Authors</Copyright>
+    <Copyright>(c) 2023 Various Authors</Copyright>
     <AssemblyTitle>Valheim WebMap</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -17,6 +17,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -26,16 +27,17 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\libs\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="assembly_valheim">
-      <HintPath>..\libs\assembly_valheim.dll</HintPath>
+      <HintPath>..\libs\publicized\assembly_valheim.dll</HintPath>
     </Reference>
     <Reference Include="assembly_utils">
-      <HintPath>..\libs\assembly_utils.dll</HintPath>
+      <HintPath>..\libs\publicized\assembly_utils.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
       <HintPath>..\libs\BepInEx.dll</HintPath>
@@ -61,5 +63,12 @@
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Posix">
+      <HintPath>..\libs\Mono.Posix.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security">
+      <HintPath>..\libs\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 </Project>

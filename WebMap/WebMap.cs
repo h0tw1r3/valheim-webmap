@@ -9,6 +9,9 @@ using HarmonyLib;
 using UnityEngine;
 using static ZRoutedRpc;
 using Random = UnityEngine.Random;
+using System.Runtime.InteropServices;
+using System.Collections;
+using System.Dynamic;
 
 namespace WebMap
 {
@@ -23,31 +26,32 @@ namespace WebMap
     {
         public const string GUID = "com.github.h0tw1r3.valheim.webmap";
         public const string NAME = "WebMap";
-        public const string VERSION = "2.5.1";
+        public const string VERSION = "2.5.2";
 
         private static readonly string[] ALLOWED_PINS = { "dot", "fire", "mine", "house", "cave" };
 
         public DiscordWebHook discordWebHook;
-        private static MapDataServer mapDataServer;
-        private static string worldDataPath;
-        private static string mapDataPath;
-        private static string pluginPath;
+        public static MapDataServer mapDataServer;
+        public static string worldDataPath;
+        public static string mapDataPath;
+        public static string pluginPath;
 
-        private static int sayMethodHash;
-        private static int chatMessageMethodHash;
+        public static int sayMethodHash = 0;
+        public static int chatMessageMethodHash = 0;
 
-        private bool fogTextureNeedsSaving;
-        private static string currentWorldName;
+        public static bool fogTextureNeedsSaving;
+
+        public static string currentWorldName;
         public static Dictionary<string, object> serverInfo;
 
         private static Harmony harmony;
 
-        private static WebMap __instance;
+        public static WebMap instance;
 
         //The Awake() method is run at the very start when the game is initialized.
         public void Awake()
         {
-            __instance = this;
+            instance = this;
             harmony = new Harmony(GUID);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
@@ -58,20 +62,18 @@ namespace WebMap
             WebMapConfig.ReadConfigFile(Config);
 
             discordWebHook = new DiscordWebHook(WebMapConfig.DISCORD_WEBHOOK);
-
-            sayMethodHash = "Say".GetStableHashCode();
-            chatMessageMethodHash = "ChatMessage".GetStableHashCode();
-            _ = "Step".GetStableHashCode();
-        }
-
-        public static WebMap getInstance()
-        {
-            return __instance;
         }
 
         public void OnDestroy()
         {
-            Config.Save();
+             Config.Save();
+        }
+
+        public void Online()
+        {
+            StaticCoroutine.Start(SaveFogTextureLoop());
+            StaticCoroutine.Start(UpdateFogTextureLoop());
+            NotifyOnline();
         }
 
         public void SetServerInfo(bool openServer, bool publicServer, string serverName, string password, string worldName, string worldSeed)
@@ -112,9 +114,6 @@ namespace WebMap
 
         public void NewWorld()
         {
-            CancelInvoke("UpdateFogTexture");
-            CancelInvoke("SaveFogTexture");
-
             string worldName = WebMapConfig.GetWorldName();
             bool forceReload = (currentWorldName != worldName);
 
@@ -123,11 +122,12 @@ namespace WebMap
 
             if (mapDataServer == null)
             {
+                ZLog.Log($"WebMap: loading existing world: #{worldName}");
                 mapDataServer = new MapDataServer();
             }
             else if (forceReload)
             {
-                Debug.Log($"WebMap: loading a new world! old: #{currentWorldName} new: #{worldName}");
+                ZLog.Log($"WebMap: loading a new world! old: #{currentWorldName} new: #{worldName}");
             }
 
             currentWorldName = worldName;
@@ -139,7 +139,7 @@ namespace WebMap
             }
             catch (Exception e)
             {
-                Debug.Log("WebMap: Failed to read map image data from disk. " + e.Message);
+                ZLog.LogError("WebMap: Failed to read map image data from disk. " + e.Message);
             }
 
             string fogImagePath = Path.Combine(worldDataPath, "fog.png");
@@ -152,7 +152,7 @@ namespace WebMap
             }
             catch (Exception e)
             {
-                Debug.Log("WebMap: Failed to read fog image data from disk... Making new fog image..." + e.Message);
+                ZLog.LogWarning("WebMap: Failed to read fog image data from disk... Making new fog image..." + e.Message);
                 Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE,
                     TextureFormat.R8, false);
                 Color32[] fogColors = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
@@ -166,16 +166,11 @@ namespace WebMap
                 {
                     File.WriteAllBytes(fogImagePath, fogPngBytes);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.Log("WebMap: FAILED TO WRITE FOG FILE!");
+                    ZLog.LogError("WebMap: FAILED TO WRITE FOG FILE! " + ex.Message);
                 }
             }
-
-            InvokeRepeating("UpdateFogTexture", WebMapConfig.UPDATE_FOG_TEXTURE_INTERVAL,
-                WebMapConfig.UPDATE_FOG_TEXTURE_INTERVAL);
-            InvokeRepeating("SaveFogTexture", WebMapConfig.SAVE_FOG_TEXTURE_INTERVAL,
-                WebMapConfig.SAVE_FOG_TEXTURE_INTERVAL);
 
             string mapPinsFile = Path.Combine(worldDataPath, "pins.csv");
             try
@@ -185,12 +180,21 @@ namespace WebMap
             }
             catch (Exception e)
             {
-                Debug.Log("WebMap: Failed to read pins.csv from disk. " + e.Message);
+                ZLog.LogError("WebMap: Failed to read pins.csv from disk. " + e.Message);
             }
 
             if (forceReload)
             {
                 mapDataServer.Reload();
+            }
+        }
+
+        public IEnumerator UpdateFogTextureLoop()
+        {
+            while(true)
+            {
+                yield return new WaitForSeconds(WebMapConfig.UPDATE_FOG_TEXTURE_INTERVAL);
+                UpdateFogTexture();
             }
         }
 
@@ -230,6 +234,7 @@ namespace WebMap
                                         Color fogTexColor = mapDataServer.fogTexture.GetPixel(x, y);
                                         if (fogTexColor != Color.white)
                                         {
+                                            if (WebMapConfig.DEBUG && !fogTextureNeedsSaving) ZLog.Log("Fog needs saving");
                                             fogTextureNeedsSaving = true;
                                             mapDataServer.fogTexture.SetPixel(x, y, Color.white);
                                         }
@@ -241,21 +246,31 @@ namespace WebMap
             });
         }
 
+        public IEnumerator SaveFogTextureLoop()
+        {
+            while(true)
+            {
+                yield return new WaitForSeconds(WebMapConfig.SAVE_FOG_TEXTURE_INTERVAL);
+                SaveFogTexture();
+            }
+        }
+
         public void SaveFogTexture()
         {
             if (mapDataServer.players.Count > 0 && fogTextureNeedsSaving)
             {
                 byte[] pngBytes = mapDataServer.fogTexture.EncodeToPNG();
 
-                // Debug.Log("Saving fog file...");
+                if (WebMapConfig.DEBUG) ZLog.Log("Saving Fog");
+
                 try
                 {
                     File.WriteAllBytes(Path.Combine(worldDataPath, "fog.png"), pngBytes);
                     fogTextureNeedsSaving = false;
                 }
-                catch
+                catch (Exception e)
                 {
-                    Debug.Log("WebMap: FAILED TO WRITE FOG FILE!");
+                    ZLog.LogError("WebMap: FAILED TO WRITE FOG FILE! " + e.Message);
                 }
             }
         }
@@ -267,13 +282,13 @@ namespace WebMap
             {
                 File.WriteAllLines(mapPinsFile, mapDataServer.pins);
             }
-            catch
+            catch (Exception e)
             {
-                Debug.Log("WebMap: FAILED TO WRITE PINS FILE!");
+                ZLog.Log("WebMap: FAILED TO WRITE PINS FILE! " + e.Message);
             }
         }
 
-        [HarmonyPatch(typeof(ZoneSystem), "Start")]
+        [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.Start))]
         private class ZoneSystemPatch
         {
             private static readonly Color DeepWaterColor = new Color(0.36105883f, 0.36105883f, 0.43137255f);
@@ -315,7 +330,7 @@ namespace WebMap
                 Color m_heathColor = new Color(0.906f, 0.671f, 0.470f);
                 Color m_ashlandsColor = new Color(0.690f, 0.192f, 0.192f);
                 Color m_deepnorthColor = new Color(1f, 1f, 1f);
-                Color m_mistlandsColor = new Color(0.325f, 0.325f, 0.325f);
+                Color m_mistlandsColor = new Color(0.36f, 0.22f, 0.4f);
 
                 switch (biome)
                 {
@@ -344,15 +359,15 @@ namespace WebMap
 
             private static void Postfix(ZoneSystem __instance)
             {
-                WebMap.getInstance().NewWorld();
+                WebMap.instance.NewWorld();
 
                 if (mapDataServer.mapImageData != null)
                 {
-                    Debug.Log("WebMap: MAP ALREADY BUILT!");
+                    ZLog.Log("WebMap: MAP ALREADY BUILT!");
                     return;
                 }
 
-                Debug.Log("WebMap: BUILD MAP!");
+                ZLog.Log("WebMap: BUILD MAP!");
 
                 int num = WebMapConfig.TEXTURE_SIZE / 2;
                 float num2 = WebMapConfig.PIXEL_SIZE / 2f;
@@ -426,17 +441,16 @@ namespace WebMap
                 try
                 {
                     File.WriteAllBytes(Path.Combine(worldDataPath, "map.png"), pngBytes);
+                    ZLog.Log("WebMap: BUILDING MAP DONE!");
                 }
-                catch
+                catch (Exception e)
                 {
-                    Debug.Log("WebMap: FAILED TO WRITE MAP FILE!");
+                    ZLog.LogError("WebMap: FAILED TO WRITE MAP FILE! " + e.Message);
                 }
-
-                Debug.Log("WebMap: BUILDING MAP DONE!");
             }
         }
 
-        [HarmonyPatch(typeof(ZoneSystem), "Load")]
+        [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.Load))]
         private class ZoneSystemLoadPatch
         {
             private static void Postfix()
@@ -446,20 +460,20 @@ namespace WebMap
                 {
                     var p = startLocation.m_position;
                     WebMapConfig.WORLD_START_POS = p;
-                    Debug.Log("WebMap: starting point " + WebMapConfig.WORLD_START_POS.ToString());
+                    ZLog.Log("WebMap: starting point " + WebMapConfig.WORLD_START_POS.ToString());
                 }
                 else
                 {
-                    Debug.Log("WebMap: failed to find starting point");
+                    ZLog.LogError("WebMap: failed to find starting point");
                 }
 
-                WebMap.getInstance().NotifyOnline();
+                WebMap.instance.Online();
 
                 mapDataServer.ListenAsync();
             }
         }
 
-        [HarmonyPatch(typeof(ZNet), "Start")]
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.Start))]
         private class ZNetPatchStart
         {
             private static void Postfix(List<ZNetPeer> ___m_peers)
@@ -468,57 +482,57 @@ namespace WebMap
             }
         }
 
-        [HarmonyPatch(typeof(ZNet), "Shutdown")]
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.Shutdown))]
         private class ZNetPatchShutdown
         {
             private static void Postfix()
             {
                 mapDataServer.Stop();
-                WebMap.getInstance().NotifyOffline();
+                WebMap.instance.NotifyOffline();
             }
         }
 
-        [HarmonyPatch(typeof(ZNet), "SetServer")]
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.SetServer))]
         private class ZNetPatchSetServer
         {
             private static void Postfix(bool server, bool openServer, bool publicServer, string serverName, string password, World world)
             {
-                WebMap.getInstance().SetServerInfo(openServer, publicServer, serverName, password, world.m_name, world.m_seedName);
+                WebMap.instance.SetServerInfo(openServer, publicServer, serverName, password, world.m_name, world.m_seedName);
             }
         }
 
-        [HarmonyPatch(typeof(ZNet), "Disconnect")]
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.Disconnect))]
         private class ZNetPatchDisconnect
         {
             private static void Prefix(ref ZNetPeer peer)
             {
                 if (!peer.m_server)
                 {
-                    WebMap.getInstance().NotifyLeave(peer);
+                    WebMap.instance.NotifyLeave(peer);
                 }
             }
         }
 
-        [HarmonyPatch(typeof(ZRoutedRpc), "AddPeer")]
+        [HarmonyPatch(typeof(ZRoutedRpc), nameof(ZRoutedRpc.AddPeer))]
         private class ZRoutedRpcAddPeerPatch
         {
             private static void Postfix(ZNetPeer peer)
             {
                 if (!peer.m_server)
                 {
-                    WebMap.getInstance().NotifyJoin(peer);
+                    WebMap.instance.NotifyJoin(peer);
                 }
             }
         }
 
-        [HarmonyPatch(typeof(ZRoutedRpc), "HandleRoutedRPC")]
+        [HarmonyPatch(typeof(ZRoutedRpc), nameof(ZRoutedRpc.HandleRoutedRPC))]
         private class ZRoutedRpcPatch
         {
             private static string[] ignoreRpc = { "DestroyZDO", "SetEvent", "OnTargeted", "Step" };
 
-            private static void Prefix(RoutedRPCData data)
+            private static void Postfix(ref ZRoutedRpc __instance, ref RoutedRPCData data)
             {
-                string methodName = StringExtensionMethods_Patch.GetStableHashName(data.m_methodHash);
+                string methodName = StringExtensionMethods_Patch.GetStableHashName(data?.m_methodHash ?? 0);
                 if (Array.Exists(ignoreRpc, x => x == methodName)) // Ignore noise
                     return;
 
@@ -538,16 +552,19 @@ namespace WebMap
                     // ignored
                 }
 
-                if (data?.m_methodHash == sayMethodHash)
+                if (data?.m_methodHash == sayMethodHash || data?.m_methodHash == "Say".GetStableHashCode())
+                {
+                    sayMethodHash = data.m_methodHash;
                     try
                     {
                         ZDO zdoData = ZDOMan.instance.GetZDO(peer.m_characterID);
                         Vector3 pos = zdoData.GetPosition();
-                        ZPackage package = new ZPackage(data.m_parameters.GetArray());
-                        int messageType = package.ReadInt();
-                        string userName = package.ReadString();
-                        string message = package.ReadString();
-                        message = (message == null ? "" : message).Trim();
+                        var package = data.m_parameters;
+                        var messageType = package.ReadInt();
+                        var userInfo = new UserInfo();
+                        userInfo.Deserialize(ref package);
+                        string message = package.ReadString() ?? "";
+                        message = message.Trim();
 
                         if (message.StartsWith("!pin"))
                         {
@@ -569,9 +586,9 @@ namespace WebMap
                             string safePinsText = Regex.Replace(pinText, "[^a-zA-Z0-9 ]", "");
 
                             long timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-                            ;
+
                             string pinId = $"{timestamp}-{Random.Range(1000, 9999)}";
-                            mapDataServer.AddPin(steamid, pinId, pinType, userName, pos, safePinsText);
+                            mapDataServer.AddPin(steamid, pinId, pinType, userInfo.Name, pos, safePinsText);
 
                             List<string> usersPins = mapDataServer.pins.FindAll(pin => pin.StartsWith(steamid));
                             int numOverflowPins = usersPins.Count - WebMapConfig.MAX_PINS_PER_USER;
@@ -615,39 +632,65 @@ namespace WebMap
                         {
                             if (messageType != (int)Talker.Type.Whisper)
                             {
-                                mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
+                                mapDataServer.AddMessage(data.m_senderPeerID, messageType, userInfo.Name, message);
                             }
-                            Debug.Log("WebMap: (say) " + pos + " | " + messageType + " | " + userName + " | " + message);
+                            ZLog.Log($"WebMap: (say) {pos} | {messageType} | {userInfo.Name} | {message}");
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // ignored
+                        if (WebMapConfig.DEBUG) ZLog.LogError(ex.ToString());
                     }
-                else if (data?.m_methodHash == chatMessageMethodHash)
+                }
+                else if (data?.m_methodHash == chatMessageMethodHash || data?.m_methodHash == "ChatMessage".GetStableHashCode())
+                {
+                    chatMessageMethodHash = data.m_methodHash;
                     try
                     {
                         ZPackage package = new ZPackage(data.m_parameters.GetArray());
                         Vector3 pos = package.ReadVector3();
-                        int messageType = package.ReadInt();
-                        string userName = package.ReadString();
+                        var messageType = package.ReadInt();
+                        var userInfo = new UserInfo();
+                        userInfo.Deserialize(ref package);
 
                         if (messageType == (int)Talker.Type.Ping)
-                            mapDataServer.BroadcastPing(data.m_senderPeerID, userName, pos);
+                        {
+                            mapDataServer.BroadcastPing(data.m_senderPeerID, userInfo.Name, pos);
+                            ZLog.Log($"WebMap: (ping) {pos} | {messageType} | {userInfo.Name}");
+                        }
                         else
                         {
-                            string message = package.ReadString();
-                            message = (message == null ? "" : message).Trim();
+                            var message = package.ReadString() ?? "";
+                            message = message.Trim();
 
-                            mapDataServer.AddMessage(data.m_senderPeerID, messageType, userName, message);
-                            Debug.Log("WebMap: (chat) " + pos + " | " + messageType + " | " + userName + " | " + message);
+                            mapDataServer.AddMessage(data.m_senderPeerID, messageType, userInfo.Name, message);
+                            ZLog.Log($"WebMap: (chat) {pos} | {messageType} | {userInfo.Name} | {message}");
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // ignored
+                        if (WebMapConfig.DEBUG) ZLog.LogError(ex.ToString());
                     }
+                }
             }
         }
+    }
+
+    public class StaticCoroutine {
+        private static StaticCoroutineRunner runner;
+
+        public static Coroutine Start(IEnumerator coroutine) {
+            EnsureRunner();
+            return runner.StartCoroutine(coroutine);
+        }
+
+        private static void EnsureRunner() {
+            if (runner == null) {
+                runner = new GameObject("[Static Coroutine Runner]").AddComponent<StaticCoroutineRunner>();
+                UnityEngine.Object.DontDestroyOnLoad(runner.gameObject);
+            }
+        }
+
+        private class StaticCoroutineRunner : MonoBehaviour { }
     }
 }

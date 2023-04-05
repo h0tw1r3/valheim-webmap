@@ -45,7 +45,7 @@ namespace WebMap
             {
                 endpoint = Context.UserEndPoint.ToString();
             }
-            Debug.Log("WebMap: new visitor connected from " + endpoint);
+            ZLog.Log("WebMap: new visitor connected from " + endpoint);
             base.OnOpen();
         }
 
@@ -140,7 +140,6 @@ namespace WebMap
             httpServer.OnGet += (sender, e) =>
             {
                 HttpListenerRequest req = e.Request;
-                // Debug.Log("~~~ Got GET Request for: " + req.RawUrl);
 
                 if (ProcessSpecialRoutes(e)) return;
 
@@ -229,7 +228,7 @@ namespace WebMap
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log("WebMap: FAILED TO READ FILE! " + ex.Message);
+                        ZLog.LogError("WebMap: FAILED TO READ FILE! " + ex.Message);
                     }
                 }
 
@@ -324,9 +323,9 @@ namespace WebMap
             httpServer.Start();
 
             if (httpServer.IsListening)
-                Debug.Log($"WebMap: HTTP Server Listening on port {SERVER_PORT}");
+                ZLog.Log($"WebMap: HTTP Server Listening on port {SERVER_PORT}");
             else
-                Debug.Log("WebMap: HTTP Server Failed To Start !!!");
+                ZLog.LogError("WebMap: HTTP Server Failed To Start !!!");
         }
 
         public void BroadcastPing(long id, string name, Vector3 position)
