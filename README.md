@@ -4,7 +4,7 @@ This server side mod creates a web based map that shows live players and allows 
 
 For players to show up on the map, they must set **visible to other players** in the in-game map screen. Press `m` to bring up the map settings.
 
-This has only been tested on a Valheim dedicated server. I'm not sure this will work with the built in server inclued with the base game.
+Currently only works with Valheim dedicated server.
 
 ## Features
 
@@ -13,23 +13,27 @@ This has only been tested on a Valheim dedicated server. I'm not sure this will 
 * Map pings from in game players will show up on the web map as well.
 * Connected players list.
 * Auto follow player feature.
-* Chat messages.
+* Connect and chat messages.
+* Discord server status and player join/leave notifications.
 
 ![screenshot](screenshot.webp)
 
 ## Installation
 
-Assuming you have [BepInEx] installed and working, place the WebMap directory in:
+1. Assuming you have [BepInEx] installed and working, place the WebMap directory in:
 
-    Steam\steamapps\common\Valheim dedicated server\BepInEx\plugins\WebMap
+       Steam\steamapps\common\Valheim dedicated server\BepInEx\plugins\WebMap
 
-After starting the server for the first time a default configuration file will be created in:
+2. After starting the server for the first time a default configuration file will be created in:
 
-    Steam\steamapps\common\Valheim dedicated server\BepInEx\config
+       Steam\steamapps\common\Valheim dedicated server\BepInEx\config
+
+3. Stop the server, edit the configuration, start the server. Always stop the server
+   before making configuration changes, _otherwise they will be lost on shutdown_.
 
 ## Updating
 
-If you are updating, one additional thing you and anyone else using the web map might need to do is clear your browser cache.
+If you are updating, one additional thing you and anyone else using the web map might need to do is __clear your browser cache__.
 
 You may also be able to hold down the `shift` key and click the reload button in your browser.
 
@@ -44,27 +48,7 @@ This mod supports placing pins with chat commands. Press `Enter` to start chatti
 * `!undoPin` - Delete your most recent pin.
 * `!deletePin [text]` - Delete the most recent pin that matches the text exactly.
 
-If a player creates too many pins, their oldest pin will be removed. There is a setting to control how many pins a player can create in `config.json`.
-
-## Development
-
-To get your environment working, you will need to find and place these .dll files in the WebMap/libs directory. Most of the libraries are found in:
-
-`Steam\steamapps\common\Valheim dedicated server\valheim_server_Data\Managed`
-
-* assembly_valheim.dll
-* UnityEngine.CoreModule.dll
-* UnityEngine.dll
-* UnityEngine.UI.dll
-
-You also need some Unity developer libraries (google for them).
-
-* UnityEngine.ImageConversionModule.dll
-* UnityEngine.JSONSerializeModule.dll
-
-To get the fontend part building, you'll need [node] installed. After, just do `npm install` to install webpack. Then you can run `npm run build` to build `main.js` which should be included with the other web resources in `WebMap/web`.
-
-I wanted to get this working as soon as possible, so apollogies for messy code.
+If a player creates too many pins, their oldest pin will be removed. There is a setting to control how many pins a player can create.
 
 ## Licence
 
