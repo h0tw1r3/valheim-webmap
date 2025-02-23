@@ -33,17 +33,23 @@
     <Reference Include="0Harmony">
       <HintPath>..\libs\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\libs\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Harmony">
+      <HintPath>..\libs\BepInEx\core\BepInEx.Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="assembly_valheim">
       <HintPath>..\libs\valheim\assembly_valheim.public.dll</HintPath>
     </Reference>
     <Reference Include="assembly_utils">
       <HintPath>..\libs\valheim\assembly_utils.public.dll</HintPath>
     </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>..\libs\BepInEx\core\BepInEx.dll</HintPath>
+    <Reference Include="Mono.Posix">
+      <HintPath>..\libs\valheim\Mono.Posix.dll</HintPath>
     </Reference>
-    <Reference Include="BepInEx.Harmony">
-      <HintPath>..\libs\BepInEx\core\BepInEx.Harmony.dll</HintPath>
+    <Reference Include="Mono.Security">
+      <HintPath>..\libs\valheim\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\libs\valheim\UnityEngine.dll</HintPath>
@@ -59,12 +65,6 @@
     </Reference>
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix">
-      <HintPath>..\libs\valheim\Mono.Posix.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>..\libs\valheim\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
