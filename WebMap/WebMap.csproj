@@ -31,43 +31,40 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\libs\0Harmony.dll</HintPath>
+      <HintPath>..\libs\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="assembly_valheim">
-      <HintPath>..\libs\publicized\assembly_valheim.dll</HintPath>
+      <HintPath>..\libs\valheim\assembly_valheim.public.dll</HintPath>
     </Reference>
     <Reference Include="assembly_utils">
-      <HintPath>..\libs\publicized\assembly_utils.dll</HintPath>
+      <HintPath>..\libs\valheim\assembly_utils.public.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\libs\BepInEx.dll</HintPath>
+      <HintPath>..\libs\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Harmony">
-      <HintPath>..\libs\BepInEx.Harmony.dll</HintPath>
+      <HintPath>..\libs\BepInEx\core\BepInEx.Harmony.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\libs\UnityEngine.dll</HintPath>
+      <HintPath>..\libs\valheim\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\libs\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\libs\valheim\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>..\libs\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>..\libs\valheim\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>..\libs\UnityEngine.JSONSerializeModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\libs\valheim\UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Posix">
-      <HintPath>..\libs\Mono.Posix.dll</HintPath>
+      <HintPath>..\libs\valheim\Mono.Posix.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
-      <HintPath>..\libs\Mono.Security.dll</HintPath>
+      <HintPath>..\libs\valheim\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
