@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "cake.tool": {
+      "version": "5.0.0",
+      "commands": [
+        "dotnet-cake"
+      ],
+      "rollForward": false
+    },
+    "bepinex.assemblypublicizer.cli": {
+      "version": "0.4.3",
+      "commands": [
+        "assembly-publicizer"
+      ],
+      "rollForward": false
+    }
+  }
+}
