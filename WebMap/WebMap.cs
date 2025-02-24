@@ -506,7 +506,7 @@ namespace WebMap
         {
             private static void Prefix(ref ZNetPeer peer)
             {
-                if (!peer.m_server)
+                if (!peer.m_server && !string.IsNullOrEmpty(peer.m_playerName))
                 {
                     WebMap.instance.NotifyLeave(peer);
                 }
@@ -518,7 +518,7 @@ namespace WebMap
         {
             private static void Postfix(ZNetPeer peer)
             {
-                if (!peer.m_server)
+                if (!peer.m_server && !string.IsNullOrEmpty(peer.m_playerName))
                 {
                     WebMap.instance.NotifyJoin(peer);
                 }
