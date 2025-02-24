@@ -566,14 +566,14 @@ namespace WebMap
                         string message = package.ReadString() ?? "";
                         message = message.Trim();
 
-                        if (message.StartsWith("!pin"))
+                        if (message.ToUpper().StartsWith("!PIN"))
                         {
                             string[] messageParts = message.Split(' ');
                             string pinType = "dot";
                             int startIdx = 1;
-                            if (messageParts.Length > 1 && Array.Exists(ALLOWED_PINS, e => e == messageParts[1]))
+                            if (messageParts.Length > 1 && Array.Exists(ALLOWED_PINS, e => e == messageParts[1].ToLower()))
                             {
-                                pinType = messageParts[1];
+                                pinType = messageParts[1].ToLower();
                                 startIdx = 2;
                             }
 
@@ -600,7 +600,7 @@ namespace WebMap
 
                             SavePins();
                         }
-                        else if (message.StartsWith("!undoPin"))
+                        else if (message.ToUpper().StartsWith("!UNDOPIN"))
                         {
                             int pinIdx = mapDataServer.pins.FindLastIndex(pin => pin.StartsWith(steamid));
                             if (pinIdx > -1)
@@ -609,7 +609,7 @@ namespace WebMap
                                 SavePins();
                             }
                         }
-                        else if (message.StartsWith("!deletePin"))
+                        else if (message.ToUpper().StartsWith("!DELETEPIN"))
                         {
                             string[] messageParts = message.Split(' ');
                             string pinText = "";
