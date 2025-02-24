@@ -50,6 +50,8 @@ This mod supports placing pins with chat commands. Press `Enter` to start chatti
 
 If a player creates too many pins, their oldest pin will be removed. There is a setting to control how many pins a player can create.
 
+_Commands are not case sensitive._
+
 ## Licence
 
 Where applicable, assume stuff is under the MIT licence.
