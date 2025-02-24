@@ -180,7 +180,7 @@ namespace WebMap
                     if (!player.m_publicRefPos)
                         dataString += "hidden\n";
                     if (player.m_publicRefPos || WebMapConfig.ALWAYS_VISIBLE || WebMapConfig.ALWAYS_MAP)
-                        dataString += $"{pos.x:0.##},{pos.z:0.##}\n";
+                        dataString += FormattableString.Invariant($"{pos.x:0.##},{pos.z:0.##}\n");
                     dataString += $"{dead}{pvp}{inbed}\n\n";
                 }
 
