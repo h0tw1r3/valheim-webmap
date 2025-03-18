@@ -331,15 +331,9 @@ ASALocalRun/
 notes.txt
 ValheimWebMap.zip
 */web/main.js
-libs/valheim/
-libs/BepInEx/
+libs/valheim
+libs/BepInEx
 WebMap.dll
 WebMap.zip
 
-.bash*
-.cache/
-.dotnet/
-.local/
-.npm/
-.nuget/
 tools/

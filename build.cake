@@ -2,29 +2,49 @@ using Cake.Core.IO;
 using Cake.Common.Diagnostics;
 using Cake.Common.Tools.DotNet;
 
+#addin "nuget:?package=Cake.Npm&version=5.1.0"
 #load "./build/AssemblyPublicizerTool.cake"
 
 var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
 
+var tempDir = System.IO.Path.GetTempPath();
+
+var publicizerInputPath = "./libs/valheim/";
+var publicizerOutputPath = publicizerInputPath;
+
+if (DirectoryExists("/opt/steam/libs"))
+{
+    publicizerInputPath = "/opt/steam/libs/";
+    publicizerOutputPath = tempDir;
+}
+
+var assembliesToPublicize = new[]
+{
+    new { Input = $"{publicizerInputPath}assembly_utils.dll",   Output = $"{publicizerOutputPath}assembly_utils.public.dll" },
+    new { Input = $"{publicizerInputPath}assembly_valheim.dll", Output = $"{publicizerOutputPath}assembly_valheim.public.dll" }
+};
+
 Task("Clean")
-    .WithCriteria(c => HasArgument("rebuild"))
     .Does(() =>
 {
-    CleanDirectory($"./WebMap/bin/{configuration}");
+    DotNetClean("./WebMap/WebMap.csproj", new DotNetCleanSettings
+    {
+        Configuration = configuration,
+    });
+
+    CleanDirectory($"./WebMap/obj");
+    DeleteFiles("./WebMap/web/main.js");
+    foreach (var asm in assembliesToPublicize)
+    {
+      DeleteFiles(asm.Output);
+    }
 });
 
 Task("Publicize")
     .Does((context) =>
 {
     var publicizer = new AssemblyPublicizerTool(context);
-
-    var assembliesToPublicize = new[]
-    {
-        new { Input = "./libs/valheim/assembly_utils.dll",   Output = "./libs/valheim/assembly_utils.public.dll" },
-        new { Input = "./libs/valheim/assembly_valheim.dll", Output = "./libs/valheim/assembly_valheim.public.dll" }
-    };
-
 
     foreach (var asm in assembliesToPublicize)
     {
@@ -37,7 +57,6 @@ Task("Publicize")
         if (needsPublicizing)
         {
             publicizer.Publicize(asm.Input, asm.Output);
-            context.Information($"Publicized: {asm.Input} -> {asm.Output}");
         }
         else
         {
@@ -46,15 +65,38 @@ Task("Publicize")
     }
 });
 
-Task("Build")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Publicize")
+var BuildTask = Task("Build")
     .Does(() =>
 {
     DotNetBuild("./WebMap/WebMap.csproj", new DotNetBuildSettings
     {
         Configuration = configuration,
     });
+});
+
+if (HasArgument("rebuild")) {
+    BuildTask.IsDependentOn("Clean");
+}
+BuildTask.IsDependentOn("Publicize");
+BuildTask.IsDependentOn("BuildNpm");
+
+Task("BuildNpm").Does(() => {
+    var settings = new NpmInstallSettings();
+
+    settings.LogLevel = NpmLogLevel.Info;
+    settings.WorkingDirectory = "./";
+    settings.Production = true;
+
+    NpmInstall(settings);
+
+    if (configuration.Equals("Debug"))
+    {
+        NpmRunScript("build-dev");
+    }
+    else
+    {
+        NpmRunScript("build");
+    }
 });
 
 RunTarget(target);

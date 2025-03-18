@@ -1,6 +1,4 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
@@ -8,10 +6,9 @@
             "command": "dotnet",
             "type": "shell",
             "args": [
-                "build",
-                "WebMap/WebMap.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "cake",
+                "--configuration=Debug",
+                "--rebuild"
             ],
             "group": "build",
             "presentation": {
@@ -25,36 +22,14 @@
             "type": "shell",
             "args": [
                 "build",
-                "WebMap/WebMap.csproj",
                 "--configuration=Release",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "--rebuild"
             ],
             "group": "build",
             "presentation": {
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "copyDll",
-            "type": "shell",
-            "command": "cp ./WebMap/bin/Debug/WebMap.dll '/Program Files (x86)/Steam/steamapps/common/Valheim dedicated server/BepInEx/plugins/WebMap'",
-        },
-        {
-            "label": "copyWebDir",
-            "type": "shell",
-            "command": "cp -r ./WebMap/web/* '/Program Files (x86)/Steam/steamapps/common/Valheim dedicated server/BepInEx/plugins/WebMap/web'",
-        },
-        {
-            "label": "buildAndCopy",
-            "dependsOn": [
-                "build",
-                "copyDll",
-                "copyWebDir"
-            ],
-            "dependsOrder": "sequence",
-            "problemMatcher": []
         }
     ]
 }

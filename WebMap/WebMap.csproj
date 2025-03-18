@@ -29,39 +29,49 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <TempDir>$([System.IO.Path]::GetTempPath())</TempDir>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\libs\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath Condition="Exists('\opt\BepInEx')">\opt\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\BepInEx')">..\libs\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\libs\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath Condition="Exists('\opt\BepInEx')">\opt\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\BepInEx')">..\libs\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Harmony">
-      <HintPath>..\libs\BepInEx\core\BepInEx.Harmony.dll</HintPath>
+      <HintPath Condition="Exists('\opt\BepInEx')">\opt\BepInEx\core\BepInEx.Harmony.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\BepInEx')">..\libs\BepInEx\core\BepInEx.Harmony.dll</HintPath>
     </Reference>
     <Reference Include="assembly_valheim">
-      <HintPath>..\libs\valheim\assembly_valheim.public.dll</HintPath>
+      <HintPath Condition="Exists('$(TempDir)assembly_valheim.public.dll')">$(TempDir)assembly_valheim.public.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\assembly_valheim.public.dll</HintPath>
     </Reference>
     <Reference Include="assembly_utils">
-      <HintPath>..\libs\valheim\assembly_utils.public.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix">
-      <HintPath>..\libs\valheim\Mono.Posix.dll</HintPath>
+      <HintPath Condition="Exists('$(TempDir)assembly_utils.public.dll')">$(TempDir)assembly_utils.public.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\assembly_utils.public.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
-      <HintPath>..\libs\valheim\Mono.Security.dll</HintPath>
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\Mono.Security.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\libs\valheim\UnityEngine.dll</HintPath>
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\UnityEngine.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\libs\valheim\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>..\libs\valheim\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>..\libs\valheim\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
