@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.7.0</Version>
+    <Version>2.7.1</Version>
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <Copyright>(c) 2024 Various Authors</Copyright>
+    <Copyright>(c) 2025 Various Authors</Copyright>
     <AssemblyTitle>Valheim WebMap</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
