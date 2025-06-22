@@ -4,6 +4,7 @@
     <Version>2.7.0</Version>
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
+    <LangVersion>9.0</LangVersion>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <Copyright>(c) 2024 Various Authors</Copyright>
     <AssemblyTitle>Valheim WebMap</AssemblyTitle>
@@ -72,6 +73,14 @@
     <Reference Include="UnityEngine.JSONSerializeModule">
       <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\UnityEngine.JSONSerializeModule.dll</HintPath>
       <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Splatform">
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\Splatform.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\Splatform.dll</HintPath>
+    </Reference>
+    <Reference Include="steamworks">
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\com.rlabrecque.steamworks.net.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\com.rlabrecque.steamworks.net.dll</HintPath>
     </Reference>
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
