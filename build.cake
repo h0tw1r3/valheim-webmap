@@ -2,11 +2,18 @@ using Cake.Core.IO;
 using Cake.Common.Diagnostics;
 using Cake.Common.Tools.DotNet;
 
+#r "System.IO.Compression"
+#r "System.IO.Compression.FileSystem"
+
 #addin "nuget:?package=Cake.Npm&version=5.1.0"
+#addin "nuget:?package=Cake.Compression&version=0.4.0"
+#addin "nuget:?package=SharpZipLib&version=1.4.2"
 #load "./build/AssemblyPublicizerTool.cake"
+#tool "dotnet:?package=GitVersion.Tool&version=6.4.0"
 
 var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
+var outputDir = "./output";
 
 var tempDir = System.IO.Path.GetTempPath();
 
@@ -31,6 +38,7 @@ Task("Clean")
     DotNetClean("./WebMap/WebMap.csproj", new DotNetCleanSettings
     {
         Configuration = configuration,
+        OutputDirectory = outputDir
     });
 
     CleanDirectory($"./WebMap/obj");
@@ -71,6 +79,7 @@ var BuildTask = Task("Build")
     DotNetBuild("./WebMap/WebMap.csproj", new DotNetBuildSettings
     {
         Configuration = configuration,
+        OutputDirectory = outputDir
     });
 });
 
@@ -97,6 +106,24 @@ Task("BuildNpm").Does(() => {
     {
         NpmRunScript("build");
     }
+});
+
+Task("Zip-Release").IsDependentOn("Build").Does(() => {
+    var tempPackageDir = "./temp";
+    var zipFile = $"{outputDir}/WebMap-Release.zip";
+
+    CleanDirectory(tempPackageDir);
+    CleanDirectory($"{tempPackageDir}/web");
+
+    CopyFileToDirectory(outputDir + "/WebMap.dll", tempPackageDir);
+    CopyFileToDirectory(outputDir + "/websocket-sharp.dll", tempPackageDir);
+    CopyFileToDirectory("./README.md", tempPackageDir);
+    CopyFileToDirectory("./manifest.json", tempPackageDir);
+    CopyFiles("./WebMap/web/*", $"{tempPackageDir}/web/");
+
+    ZipCompress(tempPackageDir, zipFile);
+
+    Information("Release zip created at: {0}", zipFile);
 });
 
 RunTarget(target);

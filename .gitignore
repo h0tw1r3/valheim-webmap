@@ -337,3 +337,5 @@ WebMap.dll
 WebMap.zip
 
 tools/
+output/
+temp/
