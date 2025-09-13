@@ -3,7 +3,7 @@ variable "RELEASE" {
 }
 
 variable "BEPINEX_RELEASE" {
-  default = "5.4.23.2"
+  default = "5.4.23.3"
 }
 
 target "default" {
@@ -14,17 +14,6 @@ target "default" {
   }
   tags = [
     "valheim-mod-builder:${RELEASE}"
-  ]
-  platforms = [
-    "linux/amd64"
-  ]
-}
-
-target "init" {
-  dockerfile = "Dockerfile"
-  target = "init"
-  tags = [
-    "valheim-mod-builder-init:${RELEASE}"
   ]
   platforms = [
     "linux/amd64"
