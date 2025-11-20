@@ -34,6 +34,10 @@ namespace WebMap
 
         public static string URL = "";
 
+        public static bool SERVERSIDEMAP_ENABLED = true;
+        public static string SERVERSIDEMAP_WORLDS_LOCAL_PATH = "";
+        public static string SERVERSIDEMAP_FILE_PATTERN = "{worldName}.mod.serversidemap.explored";
+
         public static void ReadConfigFile(ConfigFile config)
         {
             TEXTURE_SIZE = config.Bind("Texture", "texture_size",
@@ -92,7 +96,7 @@ namespace WebMap
                 WebMapConfig.DEBUG,
                 "Output debugging information.").Value;
 
-            DEBUG = config.Bind("Server", "test",
+            TEST = config.Bind("Server", "test",
                 WebMapConfig.TEST,
                 "Enable test features (bugs).").Value;
 
@@ -107,6 +111,18 @@ namespace WebMap
             URL = config.Bind("Server", "webmap_url",
                 WebMapConfig.URL,
                 "URL to view the web map.").Value;
+
+            SERVERSIDEMAP_ENABLED = config.Bind("ServerSideMap", "enabled",
+                WebMapConfig.SERVERSIDEMAP_ENABLED,
+                "Enable ServerSideMap integration. When enabled, WebMap will sync explored map data and pins with ServerSideMap plugin.").Value;
+
+            SERVERSIDEMAP_WORLDS_LOCAL_PATH = config.Bind("ServerSideMap", "worlds_local_path",
+                WebMapConfig.SERVERSIDEMAP_WORLDS_LOCAL_PATH,
+                "Path to worlds_local directory where ServerSideMap stores .explored files. Leave empty to auto-detect.").Value;
+
+            SERVERSIDEMAP_FILE_PATTERN = config.Bind("ServerSideMap", "file_pattern",
+                WebMapConfig.SERVERSIDEMAP_FILE_PATTERN,
+                "File pattern for ServerSideMap .explored files. Use {worldName} as placeholder for world name.").Value;
         }
 
         public static string GetWorldName()

@@ -343,14 +343,29 @@ namespace WebMap
             pins.Add($"{id},{pinId},{type},{name},{FixedValue(position.x)},{FixedValue(position.z)},{pinText}");
             webSocketHandler.Sessions.Broadcast(
                 $"pin\n{id}\n{pinId}\n{type}\n{name}\n{FixedValue(position.x)},{FixedValue(position.z)}\n{pinText}");
+            
+            // Save to ServerSideMap if integration is enabled
+            if (ServerSideMapIntegration.IsPluginInstalled() && WebMapConfig.SERVERSIDEMAP_ENABLED)
+            {
+                string worldName = WebMapConfig.GetWorldName();
+                ServerSideMapIntegration.SavePin(worldName, id, pinId, type, name, position, pinText);
+            }
         }
 
         public void RemovePin(int idx)
         {
             string pin = pins[idx];
             string[] pinParts = pin.Split(',');
+            string pinId = pinParts.Length > 1 ? pinParts[1] : "";
             pins.RemoveAt(idx);
-            webSocketHandler.Sessions.Broadcast($"rmpin\n{pinParts[1]}");
+            webSocketHandler.Sessions.Broadcast($"rmpin\n{pinId}");
+            
+            // Remove from ServerSideMap if integration is enabled
+            if (ServerSideMapIntegration.IsPluginInstalled() && WebMapConfig.SERVERSIDEMAP_ENABLED && !string.IsNullOrEmpty(pinId))
+            {
+                string worldName = WebMapConfig.GetWorldName();
+                ServerSideMapIntegration.RemovePin(worldName, pinId);
+            }
         }
 
         public void AddMessage(long id, int type, string name, string message)

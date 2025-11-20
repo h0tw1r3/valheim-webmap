@@ -1,0 +1,31 @@
+Add ServerSideMap plugin integration
+
+This commit adds comprehensive integration with the ServerSideMap plugin,
+allowing WebMap to sync explored map data and pins with ServerSideMap's
+.explored file format.
+
+Features:
+- Automatic detection of ServerSideMap plugin installation
+- Bidirectional sync of explored map data (fog of war)
+- Bidirectional sync of map pins
+- Auto-detection of worlds_local directory path
+- Configurable file pattern for .explored files
+- Graceful fallback to WebMap's native storage when ServerSideMap is unavailable
+
+Changes:
+- Added ServerSideMapIntegration.cs: New integration class handling all
+  ServerSideMap file format operations (ZPackage reading/writing, texture
+  conversion, pin format translation)
+- Updated Config.cs: Added three new configuration options:
+  * SERVERSIDEMAP_ENABLED: Enable/disable integration (default: true)
+  * SERVERSIDEMAP_WORLDS_LOCAL_PATH: Manual path override (auto-detected if empty)
+  * SERVERSIDEMAP_FILE_PATTERN: File naming pattern with {worldName} placeholder
+- Updated MapDataServer.cs: Added pin sync calls to ServerSideMap when
+  pins are added or removed
+- Updated WebMap.cs: Modified world loading to prioritize ServerSideMap
+  data over native files, and save operations to sync with ServerSideMap
+  when enabled
+
+The integration is backward compatible - if ServerSideMap is not installed
+or disabled, WebMap continues to use its native fog.png and pins.csv files.
+

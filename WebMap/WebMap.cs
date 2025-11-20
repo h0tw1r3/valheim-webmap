@@ -142,45 +142,83 @@ namespace WebMap
                 ZLog.LogError("WebMap: Failed to read map image data from disk. " + e.Message);
             }
 
-            string fogImagePath = Path.Combine(worldDataPath, "fog.png");
-            try
+            // Try to load from ServerSideMap first if integration is enabled
+            bool loadedFromServerSideMap = false;
+            if (ServerSideMapIntegration.IsPluginInstalled() && WebMapConfig.SERVERSIDEMAP_ENABLED)
             {
-                Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE);
-                byte[] fogBytes = File.ReadAllBytes(fogImagePath);
-                fogTexture.LoadImage(fogBytes);
-                mapDataServer.fogTexture = fogTexture;
+                Texture2D ssmFogTexture;
+                if (ServerSideMapIntegration.LoadExploredData(worldName, out ssmFogTexture))
+                {
+                    mapDataServer.fogTexture = ssmFogTexture;
+                    loadedFromServerSideMap = true;
+                    ZLog.Log("WebMap: Loaded explored data from ServerSideMap");
+                }
+                else
+                {
+                    // Check if plugin is installed but file is missing
+                    string exploredFilePath = ServerSideMapIntegration.GetExploredFilePath(worldName);
+                    if (ServerSideMapIntegration.IsPluginInstalled() && !string.IsNullOrEmpty(exploredFilePath) && !File.Exists(exploredFilePath))
+                    {
+                        ZLog.LogError($"WebMap: ServerSideMap plugin detected but .explored file not found at: {exploredFilePath}. Continuing with WebMap's own system.");
+                    }
+                }
+
+                // Load pins from ServerSideMap
+                List<string> ssmPins;
+                if (ServerSideMapIntegration.LoadPins(worldName, out ssmPins))
+                {
+                    mapDataServer.pins = ssmPins;
+                    ZLog.Log("WebMap: Loaded pins from ServerSideMap");
+                }
             }
-            catch (Exception e)
+
+            // Fallback to WebMap's own fog.png if ServerSideMap not available
+            if (!loadedFromServerSideMap)
             {
-                ZLog.LogWarning("WebMap: Failed to read fog image data from disk... Making new fog image..." + e.Message);
-                Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE,
-                    TextureFormat.R8, false);
-                Color32[] fogColors = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
-                for (int t = 0; t < fogColors.Length; t++) fogColors[t] = Color.black;
-
-                fogTexture.SetPixels32(fogColors);
-                byte[] fogPngBytes = fogTexture.EncodeToPNG();
-
-                mapDataServer.fogTexture = fogTexture;
+                string fogImagePath = Path.Combine(worldDataPath, "fog.png");
                 try
                 {
-                    File.WriteAllBytes(fogImagePath, fogPngBytes);
+                    Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE);
+                    byte[] fogBytes = File.ReadAllBytes(fogImagePath);
+                    fogTexture.LoadImage(fogBytes);
+                    mapDataServer.fogTexture = fogTexture;
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    ZLog.LogError("WebMap: FAILED TO WRITE FOG FILE! " + ex.Message);
+                    ZLog.LogWarning("WebMap: Failed to read fog image data from disk... Making new fog image..." + e.Message);
+                    Texture2D fogTexture = new Texture2D(WebMapConfig.TEXTURE_SIZE, WebMapConfig.TEXTURE_SIZE,
+                        TextureFormat.R8, false);
+                    Color32[] fogColors = new Color32[WebMapConfig.TEXTURE_SIZE * WebMapConfig.TEXTURE_SIZE];
+                    for (int t = 0; t < fogColors.Length; t++) fogColors[t] = Color.black;
+
+                    fogTexture.SetPixels32(fogColors);
+                    byte[] fogPngBytes = fogTexture.EncodeToPNG();
+
+                    mapDataServer.fogTexture = fogTexture;
+                    try
+                    {
+                        File.WriteAllBytes(fogImagePath, fogPngBytes);
+                    }
+                    catch (Exception ex)
+                    {
+                        ZLog.LogError("WebMap: FAILED TO WRITE FOG FILE! " + ex.Message);
+                    }
                 }
             }
 
-            string mapPinsFile = Path.Combine(worldDataPath, "pins.csv");
-            try
+            // Fallback to WebMap's own pins.csv if ServerSideMap not available
+            if (!ServerSideMapIntegration.IsPluginInstalled() || !WebMapConfig.SERVERSIDEMAP_ENABLED || mapDataServer.pins.Count == 0)
             {
-                string[] pinsLines = File.ReadAllLines(mapPinsFile);
-                mapDataServer.pins = new List<string>(pinsLines);
-            }
-            catch (Exception e)
-            {
-                ZLog.LogError("WebMap: Failed to read pins.csv from disk. " + e.Message);
+                string mapPinsFile = Path.Combine(worldDataPath, "pins.csv");
+                try
+                {
+                    string[] pinsLines = File.ReadAllLines(mapPinsFile);
+                    mapDataServer.pins = new List<string>(pinsLines);
+                }
+                catch (Exception e)
+                {
+                    ZLog.LogError("WebMap: Failed to read pins.csv from disk. " + e.Message);
+                }
             }
 
             if (forceReload)
@@ -265,7 +303,16 @@ namespace WebMap
 
                 try
                 {
+                    // Save to local fog.png
                     File.WriteAllBytes(Path.Combine(worldDataPath, "fog.png"), pngBytes);
+                    
+                    // Also save to ServerSideMap if integration is enabled
+                    if (ServerSideMapIntegration.IsPluginInstalled() && WebMapConfig.SERVERSIDEMAP_ENABLED)
+                    {
+                        string worldName = WebMapConfig.GetWorldName();
+                        ServerSideMapIntegration.SaveExploredData(worldName, mapDataServer.fogTexture);
+                    }
+                    
                     fogTextureNeedsSaving = false;
                 }
                 catch (Exception e)
@@ -277,6 +324,12 @@ namespace WebMap
 
         public static void SavePins()
         {
+            // Skip saving to pins.csv if ServerSideMap is enabled (it's the source of truth)
+            if (ServerSideMapIntegration.IsPluginInstalled() && WebMapConfig.SERVERSIDEMAP_ENABLED)
+            {
+                return;
+            }
+
             string mapPinsFile = Path.Combine(worldDataPath, "pins.csv");
             try
             {
