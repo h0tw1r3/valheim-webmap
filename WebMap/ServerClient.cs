@@ -68,8 +68,8 @@ namespace WebMap
             m_name = "Server",
             // Receiving chat messages requires a valid character ID.
             m_characterID = new ZDOID(ZDOMan.GetSessionID(), uint.MaxValue),
-            m_userInfo = new() { m_id = new(ZNet.instance.m_steamPlatform, GetId()), m_displayName = "Server" },
-            m_serverAssignedDisplayName = "Server",
+            // 1.0 moved m_serverAssignedDisplayName from PlayerInfo onto PlayerInfo.m_userInfo (CrossNetworkUserInfo).
+            m_userInfo = new() { m_id = new(ZNet.instance.m_steamPlatform, GetId()), m_displayName = "Server", m_serverAssignedDisplayName = "Server" },
             m_publicPosition = false,
             m_position = Vector3.zero,
         };
@@ -92,7 +92,8 @@ namespace WebMap
             pkg.Write(Client.m_characterID);
             pkg.Write(Client.m_userInfo.m_id.ToString());
             pkg.Write(Client.m_userInfo.m_displayName);
-            pkg.Write(Client.m_serverAssignedDisplayName);
+            pkg.Write(Client.m_userInfo.m_serverAssignedDisplayName);
+            pkg.Write(Client.m_userInfo.m_playfabId);
             // Server position is never public.
             pkg.Write(false);
         }
