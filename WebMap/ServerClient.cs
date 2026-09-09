@@ -30,19 +30,29 @@ namespace WebMap
             }
         }
 
-        // Disabled pending a 1.0 fix: 1.0 moved this method's body into a new
-        // WritePlayerInfo helper, so SendPlayerList itself no longer has the
-        // m_players field-access this transpiler's insertion point depends
-        // on, and the injected AddServer() call now runs with an unassigned
-        // (null) ZPackage local, throwing on every periodic player-list send
-        // and corrupting the connect handshake for real players.
-        // [HarmonyPatch(typeof(ZNet), nameof(ZNet.SendPlayerList))]
+        // 1.0 moved this method's body out of SendPlayerList into a new private
+        // WritePlayerInfo(List<PlayerInfo>) helper, which SendPlayerList now just
+        // calls and forwards to peers. Retargeted here accordingly. The insertion
+        // point also had to move: WritePlayerInfo writes the player count via
+        // zPackage.Write(m_players.Count) immediately after constructing the
+        // package (before any per-player data is written), so this now inserts
+        // right *after* that Write(int) call - at that exact point the package's
+        // write position is at the end of everything written so far (just the
+        // count), so appending the extra "server" entry there is a plain append,
+        // and the vanilla per-player loop that follows naturally continues
+        // writing after it. Inserting any earlier (e.g. where the old transpiler
+        // did, right before the m_players field access) hits the ZPackage local
+        // before it's even constructed.
+        [HarmonyPatch(typeof(ZNet), "WritePlayerInfo")]
         public class AddExtraPlayer
         {
             static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                return new CodeMatcher(instructions).End().MatchStartBackwards(new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ZNet), nameof(ZNet.m_players))))
-                  .Advance(-1)
+                return new CodeMatcher(instructions)
+                  .Start()
+                  .MatchForward(false, new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(ZPackage), nameof(ZPackage.Write), new[] { typeof(int) })))
+                  .ThrowIfInvalid("WebMap: could not find ZPackage.Write(int) in ZNet.WritePlayerInfo")
+                  .Advance(1)
                   .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                   .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_0))
                   .InsertAndAdvance(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(AddExtraPlayer), nameof(AddServer))))
