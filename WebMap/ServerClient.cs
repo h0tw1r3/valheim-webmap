@@ -30,7 +30,13 @@ namespace WebMap
             }
         }
 
-        [HarmonyPatch(typeof(ZNet), nameof(ZNet.SendPlayerList))]
+        // Disabled pending a 1.0 fix: 1.0 moved this method's body into a new
+        // WritePlayerInfo helper, so SendPlayerList itself no longer has the
+        // m_players field-access this transpiler's insertion point depends
+        // on, and the injected AddServer() call now runs with an unassigned
+        // (null) ZPackage local, throwing on every periodic player-list send
+        // and corrupting the connect handshake for real players.
+        // [HarmonyPatch(typeof(ZNet), nameof(ZNet.SendPlayerList))]
         public class AddExtraPlayer
         {
             static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -69,7 +75,7 @@ namespace WebMap
             // Receiving chat messages requires a valid character ID.
             m_characterID = new ZDOID(ZDOMan.GetSessionID(), uint.MaxValue),
             // 1.0 moved m_serverAssignedDisplayName from PlayerInfo onto PlayerInfo.m_userInfo (CrossNetworkUserInfo).
-            m_userInfo = new() { m_id = new(ZNet.instance.m_steamPlatform, GetId()), m_displayName = "Server", m_serverAssignedDisplayName = "Server" },
+            m_userInfo = new() { m_id = new(ZNet.instance.m_steamPlatform, GetId()), m_displayName = "Server", m_serverAssignedDisplayName = "Server", m_playfabId = "" },
             m_publicPosition = false,
             m_position = Vector3.zero,
         };
