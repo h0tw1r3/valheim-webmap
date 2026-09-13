@@ -60,13 +60,13 @@ namespace WebMap
             Directory.CreateDirectory(mapDataPath);
 
             WebMapConfig.ReadConfigFile(Config);
+            // No support for modifying config run-time
+            // Save it now to write the default config
+            // and support overriding web port via command line arg
+            // TODO rewrite config and cli arg support
+            Config.Save();
 
             discordWebHook = new DiscordWebHook(WebMapConfig.DISCORD_WEBHOOK);
-        }
-
-        public void OnDestroy()
-        {
-             Config.Save();
         }
 
         public void Online()

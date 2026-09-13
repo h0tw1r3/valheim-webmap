@@ -60,9 +60,12 @@ namespace WebMap
                 WebMapConfig.MAX_PINS_PER_USER,
                 "How many pins each client is allowed to make before old ones start being deleted.").Value;
 
-            SERVER_PORT = config.Bind("Server", "server_port",
-                WebMapConfig.SERVER_PORT,
-                "HTTP port for the website. The map will be display on this site.").Value;
+            if (!int.TryParse(GetCommandLineArg("webmap-server-port"), out SERVER_PORT))
+            {
+                SERVER_PORT = config.Bind("Server", "server_port",
+                    WebMapConfig.SERVER_PORT,
+                    "HTTP port for the website. The map will be display on this site.").Value;
+            }
 
             PLAYER_UPDATE_INTERVAL = config.Bind("Interval", "player_update_interval",
                 WebMapConfig.PLAYER_UPDATE_INTERVAL,
@@ -96,17 +99,29 @@ namespace WebMap
                 WebMapConfig.TEST,
                 "Enable test features (bugs).").Value;
 
-            DISCORD_WEBHOOK = config.Bind("Server", "discord_webhook",
-                WebMapConfig.DISCORD_WEBHOOK,
-                "Discord webhook URL").Value;
+            DISCORD_WEBHOOK = GetCommandLineArg("webmap-discord-webhook");
+            if (DISCORD_WEBHOOK == "")
+            {
+                DISCORD_WEBHOOK = config.Bind("Server", "discord_webhook",
+                    WebMapConfig.DISCORD_WEBHOOK,
+                    "Discord webhook URL").Value;
+            }
 
-            DISCORD_INVITE_URL = config.Bind("Server", "discord_invite_url",
-                WebMapConfig.DISCORD_INVITE_URL,
-                "Optional Discord invite URL to be added to the webpage.").Value;
+            DISCORD_INVITE_URL = GetCommandLineArg("webmap-discord-invite-url");
+            if (DISCORD_INVITE_URL == "")
+            {
+                DISCORD_INVITE_URL = config.Bind("Server", "discord_invite_url",
+                    WebMapConfig.DISCORD_INVITE_URL,
+                    "Optional Discord invite URL to be added to the webpage.").Value;
+            }
 
-            URL = config.Bind("Server", "webmap_url",
-                WebMapConfig.URL,
-                "URL to view the web map.").Value;
+            URL = GetCommandLineArg("webmap-url");
+            if (URL == "")
+            {
+                URL = config.Bind("Server", "webmap_url",
+                    WebMapConfig.URL,
+                    "URL to view the web map.").Value;
+            }
         }
 
         public static string GetWorldName()
@@ -117,15 +132,7 @@ namespace WebMap
             }
             else
             {
-                string[] arguments = Environment.GetCommandLineArgs();
-                string worldName = "";
-                for (int t = 0; t < arguments.Length; t++)
-                    if (arguments[t] == "-world")
-                    {
-                        worldName = arguments[t + 1];
-                        break;
-                    }
-                WORLD_NAME = worldName;
+                WORLD_NAME = GetCommandLineArg("world");
             }
             return WORLD_NAME;
         }
@@ -172,6 +179,21 @@ namespace WebMap
                 }
             });
             return "{\n    " + string.Join(",\n    ", entries) + "\n}\n";
+        }
+
+        private static string GetCommandLineArg(String argName)
+        {
+            string[] arguments = Environment.GetCommandLineArgs();
+            string argValue = "";
+            for (int t = 0; t < arguments.Length; t++)
+            {
+                if (arguments[t] == $"-{argName}")
+                {
+                    argValue = arguments[t + 1];
+                    break;
+                }
+            }
+            return argValue;
         }
     }
 }
