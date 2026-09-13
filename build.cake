@@ -1,7 +1,3 @@
-using Cake.Core.IO;
-using Cake.Common.Diagnostics;
-using Cake.Common.Tools.DotNet;
-
 #r "System.IO.Compression"
 #r "System.IO.Compression.FileSystem"
 
@@ -10,6 +6,10 @@ using Cake.Common.Tools.DotNet;
 #addin "nuget:?package=SharpZipLib&version=1.4.2"
 #load "./build/AssemblyPublicizerTool.cake"
 #tool "dotnet:?package=GitVersion.Tool&version=6.4.0"
+
+using Cake.Core.IO;
+using Cake.Common.Diagnostics;
+using Cake.Common.Tools.DotNet;
 
 var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");

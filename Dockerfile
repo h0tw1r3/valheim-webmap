@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dotnet-base
+ARG DOTNET_VERSION=9.0
+
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS dotnet-base
 
 ENV DEBIAN_NONINTERACTIVE=1
 ENV PATH="$PATH:~/.dotnet/tools:/opt/steam"
