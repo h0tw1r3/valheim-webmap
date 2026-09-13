@@ -3,18 +3,18 @@
   <PropertyGroup>
     <Version>2.7.1</Version>
     <OutputType>Library</OutputType>
-    <TargetFramework>net48</TargetFramework>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-    <FrameworkPathOverride>$(MSBuildThisFileDirectory)..\libs\valheim</FrameworkPathOverride>
+    <TargetFramework>net50</TargetFramework>
+    <FrameworkPathOverride Condition="Exists('\opt\steam\libs')">\opt\steam\libs</FrameworkPathOverride>
+    <FrameworkPathOverride Condition="Exists('..\libs\valheim')">..\libs\valheim</FrameworkPathOverride>
     <LangVersion>9.0</LangVersion>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <Copyright>(c) 2025 Various Authors</Copyright>
     <AssemblyTitle>Valheim WebMap</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -22,9 +22,9 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugType>portable</DebugType>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -34,6 +34,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TempDir>$([System.IO.Path]::GetTempPath())</TempDir>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -55,6 +56,10 @@
     <Reference Include="assembly_utils">
       <HintPath Condition="Exists('$(TempDir)assembly_utils.public.dll')">$(TempDir)assembly_utils.public.dll</HintPath>
       <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\assembly_utils.public.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\Assembly-CSharp.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
       <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\Mono.Security.dll</HintPath>
@@ -84,61 +89,13 @@
       <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\com.rlabrecque.steamworks.net.dll</HintPath>
       <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\com.rlabrecque.steamworks.net.dll</HintPath>
     </Reference>
+    <Reference Include="netstandard">
+      <HintPath Condition="Exists('\opt\steam\libs')">\opt\steam\libs\netstandard.dll</HintPath>
+      <HintPath Condition="Exists('..\libs\valheim')">..\libs\valheim\netstandard.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp">
-      <HintPath>$(NuGetPackageRoot)microsoft.netframework.referenceassemblies.net48\1.0.3\build\.NETFramework\v4.8\Microsoft.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard">
-      <HintPath>..\libs\valheim\netstandard.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- Reference the game's own BCL copies (not Microsoft's net48 reference
-         assemblies) since Unity/Mono's mscorlib already defines
-         ReadOnlySpan<T> (needed for Texture2D.LoadImage's overloads), which
-         predates .NET Framework 4.8's official reference assemblies.
-         AutomaticallyUseReferenceAssemblyPackages=false above stops the SDK
-         from also injecting its own conflicting copies of these. -->
-    <Reference Include="mscorlib">
-      <HintPath>..\libs\valheim\mscorlib.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>..\libs\valheim\System.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>..\libs\valheim\System.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Data">
-      <HintPath>..\libs\valheim\System.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Drawing">
-      <HintPath>..\libs\valheim\System.Drawing.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.IO.Compression.FileSystem">
-      <HintPath>..\libs\valheim\System.IO.Compression.FileSystem.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Numerics">
-      <HintPath>..\libs\valheim\System.Numerics.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization">
-      <HintPath>..\libs\valheim\System.Runtime.Serialization.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>..\libs\valheim\System.Xml.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <HintPath>..\libs\valheim\System.Xml.Linq.dll</HintPath>
-      <Private>false</Private>
     </Reference>
   </ItemGroup>
 </Project>
