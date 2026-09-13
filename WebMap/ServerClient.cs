@@ -66,13 +66,13 @@ namespace WebMap
                 pkg.SetPos(0);
                 if (IsExtraPlayerAdded(net, pkg.ReadInt()))
                 {
-                  pkg.SetPos(prev);
+                    pkg.SetPos(prev);
                 }
                 else
                 {
-                  pkg.SetPos(0);
-                  pkg.Write(net.m_players.Count + 1);
-                  Write(pkg);
+                    pkg.SetPos(0);
+                    pkg.Write(net.m_players.Count + 1);
+                    Write(pkg);
                 }
             }
 

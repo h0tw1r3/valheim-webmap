@@ -191,7 +191,7 @@ namespace WebMap
 
         public IEnumerator UpdateFogTextureLoop()
         {
-            while(true)
+            while (true)
             {
                 yield return new WaitForSeconds(WebMapConfig.UPDATE_FOG_TEXTURE_INTERVAL);
                 UpdateFogTexture();
@@ -248,7 +248,7 @@ namespace WebMap
 
         public IEnumerator SaveFogTextureLoop()
         {
-            while(true)
+            while (true)
             {
                 yield return new WaitForSeconds(WebMapConfig.SAVE_FOG_TEXTURE_INTERVAL);
                 SaveFogTexture();
@@ -676,16 +676,20 @@ namespace WebMap
         }
     }
 
-    public class StaticCoroutine {
+    public class StaticCoroutine
+    {
         private static StaticCoroutineRunner runner;
 
-        public static Coroutine Start(IEnumerator coroutine) {
+        public static Coroutine Start(IEnumerator coroutine)
+        {
             EnsureRunner();
             return runner.StartCoroutine(coroutine);
         }
 
-        private static void EnsureRunner() {
-            if (runner == null) {
+        private static void EnsureRunner()
+        {
+            if (runner == null)
+            {
                 runner = new GameObject("[Static Coroutine Runner]").AddComponent<StaticCoroutineRunner>();
                 UnityEngine.Object.DontDestroyOnLoad(runner.gameObject);
             }
