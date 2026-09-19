@@ -12,6 +12,7 @@ using Random = UnityEngine.Random;
 using System.Runtime.InteropServices;
 using System.Collections;
 using System.Dynamic;
+using Steamworks;
 
 namespace WebMap
 {
@@ -73,7 +74,6 @@ namespace WebMap
         {
             StaticCoroutine.Start(SaveFogTextureLoop());
             StaticCoroutine.Start(UpdateFogTextureLoop());
-            NotifyOnline();
         }
 
         public void SetServerInfo(bool openServer, bool publicServer, string serverName, string password, string worldName, string worldSeed)
@@ -87,9 +87,9 @@ namespace WebMap
             serverInfo.Add("worldSeed", worldSeed);
         }
 
-        public void NotifyOnline()
+        public void NotifyOnline(string serverAddr)
         {
-            discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** is *online* 🟢\n💻 {AccessTools.Method(typeof(ZNet), "GetServerIP").Invoke(ZNet.instance, new object[] { })}:{ZNet.m_serverHostPort}\n🔑 {serverInfo["password"]}\n🗺 {WebMapConfig.URL}");
+            discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** is *online* 🟢\n💻 {serverAddr}\n🔑 {serverInfo["password"]}\n🗺 {WebMapConfig.URL}");
         }
 
         public void NotifyOffline()
@@ -470,6 +470,50 @@ namespace WebMap
                 WebMap.instance.Online();
 
                 mapDataServer.ListenAsync();
+            }
+        }
+
+        [HarmonyPatch(typeof(ZPlayFabMatchmaking), "OnSessionUpdated")]
+        public static class ZPlayFabMatchmaking_OnSessionUpdated_Patch
+        {
+            private static bool _announced = false;
+
+            static void Postfix(ZPlayFabMatchmaking __instance, object newState)
+            {
+                if (!_announced && newState.ToString() == "Active")
+                {
+                    var serverData = AccessTools.Field(typeof(ZPlayFabMatchmaking), "m_serverData").GetValue(__instance);
+                    if (serverData != null) {
+                        string serverIp = AccessTools.Field(serverData.GetType(), "serverIp")?.GetValue(serverData)?.ToString();
+                        string joinCode = AccessTools.Field(serverData.GetType(), "joinCode")?.GetValue(serverData)?.ToString();
+
+                        _announced = true;
+                        WebMap.instance.NotifyOnline($"{serverIp} (Join Code: {joinCode})");
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(ZSteamMatchmaking), "OnSteamServersConnected")]
+        public static class ZSteamMatchmaking_OnSteamServersConnected_Patch
+        {
+            private static bool _announced = false;
+
+            private static readonly AccessTools.FieldRef<int> ServerPortRef =
+                AccessTools.StaticFieldRefAccess<int>(AccessTools.Field(typeof(SteamManager), "m_serverPort"));
+
+            static void Postfix(ZSteamMatchmaking __instance)
+            {
+                if (_announced) return;
+
+                SteamIPAddress_t steamIp = SteamGameServer.GetPublicIP();
+                string publicIp = steamIp.ToString();
+
+                if (string.IsNullOrEmpty(publicIp)) return;
+                int port = ServerPortRef();
+
+                _announced = true;
+                WebMap.instance.NotifyOnline($"{publicIp}:{port}");
             }
         }
 

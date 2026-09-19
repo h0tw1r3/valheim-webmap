@@ -64,19 +64,18 @@ namespace WebMap
                 // This is needed in case multiple mods are adding extra players.
                 var prev = pkg.GetPos();
                 pkg.SetPos(0);
-                if (IsExtraPlayerAdded(net, pkg.ReadInt()))
+                int playerCount = net.GetNrOfPlayers();
+                if (playerCount >= pkg.ReadInt())
                 {
                     pkg.SetPos(prev);
                 }
                 else
                 {
                     pkg.SetPos(0);
-                    pkg.Write(net.m_players.Count + 1);
+                    pkg.Write(playerCount + 1);
                     Write(pkg);
                 }
             }
-
-            static bool IsExtraPlayerAdded(ZNet net, int count) => count >= net.m_players.Count + 1;
         }
 
         private static ZNet.PlayerInfo CreatePlayerInfo() => new()
