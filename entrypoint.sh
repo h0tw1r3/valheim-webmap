@@ -32,11 +32,18 @@ if ! grep -sq " ${RUN_WORKDIR} " < /proc/mounts ; then
 fi
 
 create_user() {
+  local existing_user
   if [ "$1" -gt 0 ] ; then
-    if [ "$2" -gt 0 ] ; then
-      su - -c "groupadd -g $2 $RUN_USER" 2>/dev/null || true
+    existing_user=$(id -nu $1 2>/dev/null ||:)
+    if [ -z "${existing_user}" ] ; then
+      if [ "$2" -gt 0 ] ; then
+        su - -c "groupadd -g $2 $RUN_USER" 2>/dev/null || true
+      fi
+      su - -c "useradd -m -d $3 -u $1 -g $2 $RUN_USER ; passwd -d $RUN_USER >/dev/null"
+    else
+      su - -c "usermod -l $RUN_USER -d /home/$RUN_USER -m $existing_user"
+      su - -c "groupmod -n $RUN_USER $existing_user"
     fi
-    su - -c "useradd -m -d $3 -u $1 -g $2 $RUN_USER ; passwd -d $RUN_USER >/dev/null"
   fi
 }
 

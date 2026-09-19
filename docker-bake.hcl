@@ -7,7 +7,7 @@ variable "BEPINEX_RELEASE" {
 }
 
 variable "DOTNET_VERSION" {
-  default = "9.0"
+  default = "10.0"
 }
 
 target "default" {

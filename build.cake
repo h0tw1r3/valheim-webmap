@@ -2,10 +2,10 @@
 #r "System.IO.Compression.FileSystem"
 
 #addin "nuget:?package=Cake.Npm&version=5.1.0"
-#addin "nuget:?package=Cake.Compression&version=0.4.0"
 #addin "nuget:?package=SharpZipLib&version=1.4.2"
+#addin "nuget:?package=Cake.Compression&version=0.4.0"
 #load "./build/AssemblyPublicizerTool.cake"
-#tool "dotnet:?package=GitVersion.Tool&version=6.4.0"
+#tool "dotnet:?package=GitVersion.Tool&version=6.8.2"
 
 using Cake.Core.IO;
 using Cake.Common.Diagnostics;
