@@ -29,6 +29,9 @@ namespace WebMap
         public static Vector3 WORLD_START_POS = Vector3.zero;
         public static int DEFAULT_ZOOM = 100;
 
+        public static bool DEFAULT_HIDE_CHAT = false;
+        public static bool DEFAULT_HIDE_PLAYER_LIST = false;
+
         public static string DISCORD_WEBHOOK = "";
         public static string DISCORD_INVITE_URL = "";
 
@@ -78,6 +81,14 @@ namespace WebMap
             DEFAULT_ZOOM = config.Bind("Texture", "default_zoom",
                 WebMapConfig.DEFAULT_ZOOM,
                 "How zoomed in should the web map start at? Higher is more zoomed in.").Value;
+
+            DEFAULT_HIDE_CHAT = config.Bind("Web", "default_hide_chat",
+                WebMapConfig.DEFAULT_HIDE_CHAT,
+                "Hide the chat / message list by default on the webpage.").Value;
+
+            DEFAULT_HIDE_PLAYER_LIST = config.Bind("Web", "default_hide_player_list",
+                WebMapConfig.DEFAULT_HIDE_PLAYER_LIST,
+                "Hide the player list by default on the webpage.").Value;
 
             MAX_MESSAGES = config.Bind("Server", "max_messages",
                 WebMapConfig.MAX_MESSAGES,
@@ -151,6 +162,8 @@ namespace WebMap
             config["max_messages"] = MAX_MESSAGES;
             config["always_map"] = ALWAYS_MAP;
             config["always_visible"] = ALWAYS_VISIBLE;
+            config["default_hide_chat"] = DEFAULT_HIDE_CHAT;
+            config["default_hide_player_list"] = DEFAULT_HIDE_PLAYER_LIST;
 
             string json = DictionaryToJson(config);
             return json;

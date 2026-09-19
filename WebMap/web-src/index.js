@@ -47,6 +47,8 @@ const fetchConfig = fetch('config').then(res => res.json()).then(config => {
     constants.MAX_MESSAGES = config.max_messages || 100;
     constants.ALWAYS_MAP = config.always_map;
     constants.ALWAYS_VISIBLE = config.always_visible;
+    constants.DEFAULT_HIDE_CHAT = config.default_hide_chat || false;
+    constants.DEFAULT_HIDE_PLAYER_LIST = config.default_hide_player_list || false;
     document.title = `Valheim WebMap - ${constants.WORLD_NAME}`;
     createStyleSheet(`
 		.mapIcon.player {
@@ -206,6 +208,11 @@ const setup = async () => {
         }
     });
 
+    if (constants.DEFAULT_HIDE_CHAT) {
+        ui.hideMessageList.checked = true;
+        ui.messageList.style.left = -ui.messageList.offsetWidth + 'px';
+    }
+
     ui.hidePlayerList.addEventListener('change', () => {
         if (ui.hidePlayerList.checked) {
             ui.playerListContainer.style.right = -ui.playerListContainer.offsetWidth + 'px';
@@ -213,6 +220,11 @@ const setup = async () => {
             ui.playerListContainer.style.right = 0;
         }
     });
+
+    if (constants.DEFAULT_HIDE_PLAYER_LIST) {
+        ui.hidePlayerList.checked = true;
+        ui.playerListContainer.style.right = -ui.playerListContainer.offsetWidth + 'px';
+    }
 
     players.init();
     websocket.init();
