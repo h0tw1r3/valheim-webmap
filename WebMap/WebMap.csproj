@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Version>2.8.0</Version>
     <OutputType>Library</OutputType>
-    <TargetFramework>net50</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <FrameworkPathOverride Condition="Exists('\opt\steam\libs')">\opt\steam\libs</FrameworkPathOverride>
     <FrameworkPathOverride Condition="Exists('..\libs\valheim')">..\libs\valheim</FrameworkPathOverride>
     <LangVersion>9.0</LangVersion>
