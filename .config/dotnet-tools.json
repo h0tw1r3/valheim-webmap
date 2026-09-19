@@ -22,6 +22,13 @@
         "dotnet-gitversion"
       ],
       "rollForward": false
+    },
+    "ilspycmd": {
+      "version": "11.0.0.9375",
+      "commands": [
+        "ilspycmd"
+      ],
+      "rollForward": false
     }
   }
 }
