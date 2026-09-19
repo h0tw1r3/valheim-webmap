@@ -3,7 +3,7 @@ variable "RELEASE" {
 }
 
 variable "BEPINEX_RELEASE" {
-  default = "5.4.23.3"
+  default = "5.4.23.5"
 }
 
 variable "DOTNET_VERSION" {
