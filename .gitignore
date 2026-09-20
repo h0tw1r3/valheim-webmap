@@ -339,3 +339,11 @@ WebMap.zip
 tools/
 output/
 temp/
+
+# docker based builder
+.cache/
+.dotnet/
+.local/
+.nuget/
+.npm/
+.bash_history
