@@ -8,8 +8,8 @@ shopt -s nullglob inherit_errexit
 
 error_trap() {
   local el=${1:=??} ec=${2:=??} lc="$BASH_COMMAND"
-  echo >&2 "ERROR in $(basename $0) : line $el error $ec : $lc"
-  exit ${2:=1}
+  echo >&2 "ERROR in $(basename "$0") : line $el error $ec : $lc"
+  exit "${2:=1}"
 }
 trap 'error_trap ${LINENO} ${?}' ERR
 
@@ -34,7 +34,7 @@ fi
 create_user() {
   local existing_user
   if [ "$1" -gt 0 ] ; then
-    existing_user=$(id -nu $1 2>/dev/null ||:)
+    existing_user=$(id -nu "$1" 2>/dev/null ||:)
     if [ -z "${existing_user}" ] ; then
       if [ "$2" -gt 0 ] ; then
         su - -c "groupadd -g $2 $RUN_USER" 2>/dev/null || true
@@ -59,7 +59,8 @@ if [ -z "${ENTRYPOINT_RELOAD:-}" ] ; then
   cp -r /root/.dotnet /root/.nuget /root/.cache /root/.local "${RUN_WORKDIR}/"
   chown -R "${RUN_USER}:" "${RUN_WORKDIR}"
   # re-run with new user
-  export HOME=$(getent passwd $RUN_USER | cut -d: -f6)
+  export HOME
+  HOME="$RUN_WORKDIR"
   export ENTRYPOINT_RELOAD=1
   exec runuser -m -P -g $RUN_USER -u $RUN_USER -- "$0" "${ARGS[@]}"
   exit

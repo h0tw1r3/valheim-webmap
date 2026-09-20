@@ -49,7 +49,7 @@ RUN /usr/lib/apt/apt-helper download-file https://dot.net/v1/dotnet-install.sh /
     dotnet workload update && \
     rm -rf /tmp/*
 
-ARG BEPINEX_RELEASE
+ARG BEPINEX_RELEASE=5.4.23.5
 FROM dotnet-base AS steam
 
 RUN <<EOF

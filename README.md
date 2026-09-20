@@ -33,7 +33,7 @@ Currently only works with Valheim dedicated server.
 
 ## Updating
 
-If you are updating, one additional thing you and anyone else using the web map might need to do is __clear your browser cache__.
+If you are updating, one additional thing you and anyone else using the web map might need to do is **clear your browser cache**.
 
 You may also be able to hold down the `shift` key and click the reload button in your browser.
 
@@ -44,7 +44,7 @@ This mod supports placing pins with chat commands. Press `Enter` to start chatti
 * `!pin` - Place a "dot" pin with no text on the map where you are currently standing.
 * `!pin my pin name` - Place a "dot" pin with "my pin name" under it on the map where you are currently standing.
 * `!pin [pin-type] [text]` - Place a pin of a certain type with optional text under it on the map where you are currently standing.
-    * Pin types are: `dot`, `fire`, `mine`, `house` and `cave`. Example command: `/pin house my awesome base`
+  * Pin types are: `dot`, `fire`, `mine`, `house` and `cave`. Example command: `/pin house my awesome base`
 * `!undoPin` - Delete your most recent pin.
 * `!deletePin [text]` - Delete the most recent pin that matches the text exactly.
 
@@ -63,6 +63,5 @@ Where applicable, assume stuff is under the MIT licence.
 * Background by [webtreats], released under the [CC BY 2.0] license.
 
 [BepInEx]: https://github.com/BepInEx/BepInEx
-[node]: https://nodejs.org/en/download/
 [webtreats]: https://www.flickr.com/photos/webtreatsetc/4081217254
 [CC BY 2.0]: https://creativecommons.org/licenses/by/2.0/
