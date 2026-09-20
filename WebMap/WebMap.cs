@@ -108,7 +108,8 @@ namespace WebMap
         {
             string message = $"player _{peer.m_playerName}_ left";
             discordWebHook.SendMessage($"🎮 **{serverInfo["serverName"]}** {message}");
-            MessageHud.instance.MessageAll(MessageHud.MessageType.Center, message);
+            // in-game HUD does not render markdown, so no underscores around the name
+            MessageHud.instance.MessageAll(MessageHud.MessageType.Center, $"player {peer.m_playerName} left");
             mapDataServer.AddMessage(peer.m_uid, (int)Talker.Type.Normal, "Server", message);
         }
 
