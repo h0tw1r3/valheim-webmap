@@ -484,7 +484,8 @@ namespace WebMap
                 if (!_announced && newState.ToString() == "Active")
                 {
                     var serverData = AccessTools.Field(typeof(ZPlayFabMatchmaking), "m_serverData").GetValue(__instance);
-                    if (serverData != null) {
+                    if (serverData != null)
+                    {
                         string serverIp = AccessTools.Field(serverData.GetType(), "serverIp")?.GetValue(serverData)?.ToString();
                         string joinCode = AccessTools.Field(serverData.GetType(), "joinCode")?.GetValue(serverData)?.ToString();
 

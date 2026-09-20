@@ -22,7 +22,7 @@ namespace WebMap.Patches
             }
 
             /////////////////////////////////////////////////////////////////
-            /// COPY PASTA THE ORIGINAL, ReversePatch wasn't working, 
+            /// COPY PASTA THE ORIGINAL, ReversePatch wasn't working,
             /// cant be bothered to figure out why
             int num = 5381;
             int num2 = num;
