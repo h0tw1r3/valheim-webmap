@@ -9,6 +9,7 @@
   "author": "Jeffrey Clark <h0tw1r3@users.noreply.github.com>",
   "license": "ISC",
   "devDependencies": {
+    "prettier": "^3.9.8",
     "webpack": "^5.98.0",
     "webpack-cli": "^4.6.0"
   }
