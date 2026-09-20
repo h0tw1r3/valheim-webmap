@@ -1,9 +1,9 @@
-ARG DOTNET_VERSION=9.0
+ARG DOTNET_VERSION=10.0
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS dotnet-base
 
 ENV DEBIAN_NONINTERACTIVE=1
-ENV PATH="$PATH:~/.dotnet/tools:/opt/steam"
+ENV PATH="$PATH:./tools:~/.dotnet/tools:/opt/steam"
 ENV LANG="C.UTF-8"
 ENV TZ="Etc/UTC"
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
@@ -27,22 +27,30 @@ EOD
 
 EOF
 
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOD
+apt-get update -q
+apt-get install -qy unzip vim-tiny lib32gcc-s1 util-linux dumb-init
+find /var/log -name '*.log' -delete
+EOD
+
 FROM dotnet-base AS dotnet
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -q && \
-    apt-get install -qy npm webpack unzip vim-tiny lib32gcc-s1 util-linux dumb-init && \
+    apt-get install -qy npm webpack && \
     find /var/log -name '*.log' -delete
 
 # 6.0 runtime is currently required for BepInEx Assembly Publicizer Cli
 RUN /usr/lib/apt/apt-helper download-file https://dot.net/v1/dotnet-install.sh /usr/local/bin/dotnet-install.sh && \
     chmod +x /usr/local/bin/dotnet-install.sh && \
     dotnet-install.sh -c 6.0 -i /usr/share/dotnet --runtime dotnet && \
-    dotnet workload update
+    dotnet workload update && \
+    rm -rf /tmp/*
 
 ARG BEPINEX_RELEASE
-FROM dotnet AS steam
+FROM dotnet-base AS steam
 
 RUN <<EOF
 groupadd -g 500 steam
@@ -53,8 +61,11 @@ EOF
 USER steam
 WORKDIR /opt/steam
 
-RUN <<EOF
-curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+RUN --mount=type=cache,target=/cache,mode=0777 <<EOF
+if ! test -s /cache/steamcmd_linux.tar.gz ; then
+    curl -L -o /cache/steamcmd_linux.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
+fi
+tar zxvf /cache/steamcmd_linux.tar.gz
 ln -s ~/steamcmd.sh ~/steamcmd
 steamcmd +login anonymous +quit
 EOF
@@ -67,12 +78,13 @@ EOF
 
 FROM dotnet AS build
 
-RUN <<EOF
-/usr/lib/apt/apt-helper download-file https://github.com/BepInEx/BepInEx/releases/download/v${BEPINEX_RELEASE}/BepInEx_win_x64_${BEPINEX_RELEASE}.zip bepinex.zip
-unzip bepinex.zip BepInEx/*
+RUN --mount=type=cache,target=/cache,mode=0777 <<EOF
+if ! test -s /cache/bepinex-${BEPINEX_RELEASE}.zip ; then
+    /usr/lib/apt/apt-helper download-file https://github.com/BepInEx/BepInEx/releases/download/v${BEPINEX_RELEASE}/BepInEx_win_x64_${BEPINEX_RELEASE}.zip /cache/bepinex-${BEPINEX_RELEASE}.zip
+fi
+unzip /cache/bepinex-${BEPINEX_RELEASE}.zip BepInEx/*
 mv BepInEx /usr/local/share/BepInEx-${BEPINEX_RELEASE}
 ln -s /usr/local/share/BepInEx-${BEPINEX_RELEASE} /opt/BepInEx
-rm bepinex.zip
 EOF
 
 COPY --from=game /opt/steam/valheim/valheim_server_Data/Managed /opt/steam/libs
@@ -82,6 +94,6 @@ WORKDIR /build
 
 RUN chmod a+rx /root
 
-COPY entrypoint.sh /.entrypoint.sh
+COPY docker/entrypoint.sh /.entrypoint.sh
 
 ENTRYPOINT ["/.entrypoint.sh"]

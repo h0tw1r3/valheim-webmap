@@ -39,9 +39,9 @@ create_user() {
       if [ "$2" -gt 0 ] ; then
         su - -c "groupadd -g $2 $RUN_USER" 2>/dev/null || true
       fi
-      su - -c "useradd -m -d $3 -u $1 -g $2 $RUN_USER ; passwd -d $RUN_USER >/dev/null"
+      su - -c "useradd -d $3 -u $1 -g $2 $RUN_USER ; passwd -d $RUN_USER >/dev/null"
     else
-      su - -c "usermod -l $RUN_USER -d /home/$RUN_USER -m $existing_user"
+      su - -c "usermod -l $RUN_USER -d $3 $existing_user"
       su - -c "groupmod -n $RUN_USER $existing_user"
     fi
   fi
@@ -54,10 +54,10 @@ if [ -z "${ENTRYPOINT_RELOAD:-}" ] ; then
     RUN_GID=$(stat -c '%g' "$RUN_WORKDIR")
     [ "$RUN_UID" -eq 0 ] && RUN_USER="root"
   fi
-  create_user "$RUN_UID" "$RUN_GID" "/home/${RUN_USER}"
+  create_user "$RUN_UID" "$RUN_GID" "${RUN_WORKDIR}"
   # copy dotnet cache to new user
-  cp -r /root/.dotnet /root/.nuget /root/.cache /root/.local "/home/${RUN_USER}/"
-  chown -R "${RUN_USER}:" "/home/${RUN_USER}"
+  cp -r /root/.dotnet /root/.nuget /root/.cache /root/.local "${RUN_WORKDIR}/"
+  chown -R "${RUN_USER}:" "${RUN_WORKDIR}"
   # re-run with new user
   export HOME=$(getent passwd $RUN_USER | cut -d: -f6)
   export ENTRYPOINT_RELOAD=1
@@ -75,6 +75,10 @@ for volume in ${RUN_WORKDIR} ; do
   fi
 done
 
-dotnet tool restore
+git config --global --add safe.directory /build
 
-"${ARGS[@]}"
+if command -v "${ARGS[@]}" >/dev/null 2>&1; then
+    "${ARGS[@]}"
+else
+    ./build.sh "${ARGS[@]}"
+fi
