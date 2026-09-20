@@ -106,7 +106,7 @@ namespace WebMap
                 WebMapConfig.DEBUG,
                 "Output debugging information.").Value;
 
-            DEBUG = config.Bind("Server", "test",
+            TEST = config.Bind("Server", "test",
                 WebMapConfig.TEST,
                 "Enable test features (bugs).").Value;
 
