@@ -1,5 +1,6 @@
 using HarmonyLib;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System;
 
 namespace WebMap.Patches
 {
@@ -7,12 +8,12 @@ namespace WebMap.Patches
     [HarmonyPatch]
     internal class StringExtensionMethods_Patch
     {
-        internal static Dictionary<int, string> stablehashNames = new Dictionary<int, string>();
-        internal static Dictionary<int, string> stablehashNamesAnim = new Dictionary<int, string>();
-        internal static Dictionary<string, int> stablehashLookup = new Dictionary<string, int>();
-        internal static Dictionary<string, int> stablehashLookupAnim = new Dictionary<string, int>();
+        internal static ConcurrentDictionary<int, string> stablehashNames = new ConcurrentDictionary<int, string>();
+        internal static ConcurrentDictionary<int, string> stablehashNamesAnim = new ConcurrentDictionary<int, string>();
+        internal static ConcurrentDictionary<string, int> stablehashLookup = new ConcurrentDictionary<string, int>();
+        internal static ConcurrentDictionary<string, int> stablehashLookupAnim = new ConcurrentDictionary<string, int>();
 
-        [HarmonyPatch(typeof(StringExtensionMethods), "GetStableHashCode")]
+        [HarmonyPatch(typeof(StringExtensionMethods), nameof(StringExtensionMethods.GetStableHashCode))]
         [HarmonyPrefix]
         public static bool GetStableHashCode(string str, ref int __result)
         {
@@ -38,7 +39,7 @@ namespace WebMap.Patches
             __result = num + num2 * 1566083941;
             /////////////////////////////////////////////////////////////////
 
-            stablehashNames[__result] = str;
+            stablehashNames.TryAdd(__result, str);
             stablehashLookup[str] = __result;
 
             if (WebMapConfig.DEBUG)
@@ -69,7 +70,7 @@ namespace WebMap.Patches
         {
             if (__runOriginal)
             {
-                stablehashNamesAnim[__result] = name;
+                stablehashNamesAnim.TryAdd(__result, name);
                 stablehashLookupAnim[name] = __result;
 
                 if (WebMapConfig.DEBUG)
