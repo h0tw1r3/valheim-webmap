@@ -288,7 +288,7 @@ namespace WebMap
                     return true;
                 case "/messages":
                     res.Headers.Add(HttpResponseHeader.CacheControl, "no-cache");
-                    res.ContentType = "applicaion/json";
+                    res.ContentType = "application/json";
                     res.StatusCode = 200;
                     List<string> tosend = new List<string>();
                     sentMessages.ForEach(message =>
