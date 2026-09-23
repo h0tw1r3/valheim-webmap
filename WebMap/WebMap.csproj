@@ -98,5 +98,6 @@
     <Reference Include="WebsocketSharp">
       <HintPath>..\libs\websocket-sharp.dll</HintPath>
     </Reference>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
   </ItemGroup>
 </Project>
