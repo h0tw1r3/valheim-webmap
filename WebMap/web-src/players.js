@@ -85,18 +85,11 @@ const init = () => {
         ui.playerList.appendChild(playerListEntry.el);
       }
 
-      if (
-        (constants.ALWAYS_VISIBLE || !player.hidden) &&
-        playerMapIcon.hidden
-      ) {
+      if ((constants.ALWAYS_VISIBLE || !player.hidden) && playerMapIcon.hidden) {
         // no longer hidden
         map.showIcon(playerMapIcon);
         playerMapIcon.playerListEntry.ui.details.style.display = "block";
-      } else if (
-        !constants.ALWAYS_VISIBLE &&
-        player.hidden &&
-        !playerMapIcon.hidden
-      ) {
+      } else if (!constants.ALWAYS_VISIBLE && player.hidden && !playerMapIcon.hidden) {
         // becomming hidden
         map.hideIcon(playerMapIcon);
         playerMapIcon.playerListEntry.ui.details.style.display = "none";

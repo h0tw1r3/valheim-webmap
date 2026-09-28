@@ -23,9 +23,7 @@ const onPointers = (element, options) => {
 
   const up = (e) => {
     downPointers.delete(e.pointerId);
-    downPointerArr = downPointerArr.filter(
-      (pointer) => pointer.event.pointerId !== e.pointerId,
-    );
+    downPointerArr = downPointerArr.filter((pointer) => pointer.event.pointerId !== e.pointerId);
     if (options.up) {
       options.up(downPointerArr);
     }
