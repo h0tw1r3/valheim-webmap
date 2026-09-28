@@ -347,3 +347,4 @@ temp/
 .nuget/
 .npm/
 .bash_history
+.gitconfig

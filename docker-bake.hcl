@@ -1,9 +1,5 @@
-variable "RELEASE" {
-  default = "dev"
-}
-
-variable "BEPINEX_RELEASE" {
-  default = "5.4.23.5"
+variable "BEPINEX_VALHEIM_RELEASE" {
+  default = "5.4.2351"
 }
 
 variable "DOTNET_VERSION" {
@@ -14,11 +10,27 @@ target "default" {
   dockerfile = "Dockerfile"
   target = "build"
   args = {
-    BEPINEX_RELEASE = "${BEPINEX_RELEASE}"
+    BEPINEX_VALHEIM_RELEASE = "${BEPINEX_VALHEIM_RELEASE}"
     DOTNET_VERSION = "${DOTNET_VERSION}"
   }
   tags = [
-    "valheim-mod-builder:${DOTNET_VERSION}-${RELEASE}"
+    "valheim-build:${BEPINEX_VALHEIM_RELEASE}",
+    "valheim-build:latest"
+  ]
+  platforms = [
+    "linux/amd64"
+  ]
+}
+
+target "server" {
+  dockerfile = "Dockerfile"
+  target = "game"
+  args = {
+    BEPINEX_VALHEIM_RELEASE = "${BEPINEX_VALHEIM_RELEASE}"
+  }
+  tags = [
+    "valheim-server:${BEPINEX_VALHEIM_RELEASE}",
+    "valheim-server:latest"
   ]
   platforms = [
     "linux/amd64"

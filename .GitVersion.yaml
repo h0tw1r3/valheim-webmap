@@ -1,0 +1,7 @@
+commit-message-incrementing: Enabled
+
+major-version-bump-message: '(?s)(BREAKING CHANGE:|^[^()\s!]+(!|\([^()\s!]+\)!):)'
+minor-version-bump-message: '(?s)^(feat)(\([^()\s!]+\))?:'
+patch-version-bump-message: '(?s)^(fix|perf)(\([^()\s!]+\))?:'
+
+no-bump-message: '(?s)^(chore|docs|refactor|style|test|ci)(\([^()\s!]+\))?:'

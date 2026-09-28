@@ -16,11 +16,6 @@ trap 'error_trap ${LINENO} ${?}' ERR
 RUN_USER=build
 RUN_WORKDIR="${PWD}"
 
-ARGS=("$@")
-if [ "${#ARGS[@]}" -eq 0 ] ; then
-    ARGS+=("/bin/bash")
-fi
-
 [ -z "${UID:-}" ] && UID=$(id -u)
 [ -z "${GID:-}" ] && GID=$(id -g)
 
@@ -62,7 +57,7 @@ if [ -z "${ENTRYPOINT_RELOAD:-}" ] ; then
   export HOME
   HOME="$RUN_WORKDIR"
   export ENTRYPOINT_RELOAD=1
-  exec runuser -m -P -g $RUN_USER -u $RUN_USER -- "$0" "${ARGS[@]}"
+  exec runuser -m -P -g $RUN_USER -u $RUN_USER -- "$0" "$@"
   exit
 fi
 
@@ -76,10 +71,10 @@ for volume in ${RUN_WORKDIR} ; do
   fi
 done
 
-git config --global --add safe.directory /build
+grep -q 'directory = /build' .gitconfig 2>/dev/null || git config --global --add safe.directory /build
 
-if command -v "${ARGS[@]}" >/dev/null 2>&1; then
-    "${ARGS[@]}"
+if [ $# -gt 0 ] && command -v "$1" >/dev/null 2>&1; then
+    "$@"
 else
-    ./build.sh "${ARGS[@]}"
+    ./build.sh "$@"
 fi
