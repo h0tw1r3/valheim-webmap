@@ -8,13 +8,12 @@ on:
     branches:
       - main
 
-permissions:
-  checks: read
-  contents: read
-
 jobs:
   Lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
 
     steps:
       - uses: actions/checkout@v7
