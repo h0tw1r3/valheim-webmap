@@ -37,3 +37,6 @@ jobs:
         with:
           dotnet_format: true
           prettier: true
+  Build:
+    needs: Lint
+    uses: ./.github/workflows/build.yml
