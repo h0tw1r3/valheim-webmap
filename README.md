@@ -16,7 +16,7 @@ Currently only works with Valheim dedicated server.
 * Connect and chat messages.
 * Discord server status and player join/leave notifications.
 
-![screenshot](screenshot.webp)
+![screenshot](https://raw.githubusercontent.com/h0tw1r3/valheim-webmap/refs/heads/main/screenshot.webp)
 
 ## Installation
 
@@ -44,7 +44,7 @@ This mod supports placing pins with chat commands. Press `Enter` to start chatti
 * `!pin` - Place a "dot" pin with no text on the map where you are currently standing.
 * `!pin my pin name` - Place a "dot" pin with "my pin name" under it on the map where you are currently standing.
 * `!pin [pin-type] [text]` - Place a pin of a certain type with optional text under it on the map where you are currently standing.
-  * Pin types are: `dot`, `fire`, `mine`, `house` and `cave`. Example command: `/pin house my awesome base`
+  * Pin types are: `dot`, `fire`, `mine`, `house` and `cave`. Example command: `!pin house my awesome base`
 * `!undoPin` - Delete your most recent pin.
 * `!deletePin [text]` - Delete the most recent pin that matches the text exactly.
 
