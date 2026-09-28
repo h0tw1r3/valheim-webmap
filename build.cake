@@ -32,6 +32,16 @@ var assembliesToPublicize = new[]
     new { Input = $"{publicizerInputPath}assembly_valheim.dll", Output = $"{publicizerOutputPath}assembly_valheim.public.dll" }
 };
 
+// Global variable to store version context
+GitVersion versionInfo = null;
+
+Setup(context =>
+{
+    Information("Calculating semantic version...");
+    versionInfo = GitVersion();
+    Information($"Target Version Found: {versionInfo.SemVer}");
+});
+
 Task("Clean")
     .Does(() =>
 {
@@ -109,19 +119,27 @@ Task("BuildNpm").Does(() => {
 });
 
 Task("Zip-Release").IsDependentOn("Build").Does(() => {
-    var tempPackageDir = "./temp";
-    var zipFile = $"{outputDir}/WebMap-Release.zip";
+    string tempReleaseDir = $"{tempDir}release";
+    string tempPluginDir = $"{tempReleaseDir}/WebMap";
+    FilePath zipFile = File($"{outputDir}/WebMap-Release.zip");
 
-    CleanDirectory(tempPackageDir);
-    CleanDirectory($"{tempPackageDir}/web");
+    CleanDirectory(tempReleaseDir);
+    EnsureDirectoryExists(tempPluginDir);
+    EnsureDirectoryExists($"{tempPluginDir}/web");
 
-    CopyFileToDirectory(outputDir + "/WebMap.dll", tempPackageDir);
-    CopyFileToDirectory(outputDir + "/websocket-sharp.dll", tempPackageDir);
-    CopyFileToDirectory("./README.md", tempPackageDir);
-    CopyFileToDirectory("./manifest.json", tempPackageDir);
-    CopyFiles("./WebMap/web/*", $"{tempPackageDir}/web/");
+    // Copy build artifacts
+    CopyFileToDirectory(outputDir + "/WebMap.dll", tempPluginDir);
+    CopyFileToDirectory(outputDir + "/WebMap.pdb", tempPluginDir);
+    CopyFileToDirectory(outputDir + "/websocket-sharp.dll", tempPluginDir);
+    CopyFiles("./WebMap/web/*", $"{tempPluginDir}/web/");
 
-    ZipCompress(tempPackageDir, zipFile);
+    // Copy release metadata
+    CopyFileToDirectory("./README.md", tempReleaseDir);
+    CopyFileToDirectory("./LICENSE", tempReleaseDir);
+    CopyFileToDirectory("./manifest.json", tempReleaseDir);
+    CopyFileToDirectory("./icon.png", tempReleaseDir);
+
+    ZipCompress(tempReleaseDir, zipFile);
 
     Information("Release zip created at: {0}", zipFile);
 });
