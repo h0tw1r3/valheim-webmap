@@ -54,8 +54,7 @@ const fetchConfig = fetch("config")
     constants.ALWAYS_MAP = config.always_map;
     constants.ALWAYS_VISIBLE = config.always_visible;
     constants.DEFAULT_HIDE_CHAT = config.default_hide_chat || false;
-    constants.DEFAULT_HIDE_PLAYER_LIST =
-      config.default_hide_player_list || false;
+    constants.DEFAULT_HIDE_PLAYER_LIST = config.default_hide_player_list || false;
     document.title = `Valheim WebMap - ${constants.WORLD_NAME}`;
     createStyleSheet(`
 		.mapIcon.player {
@@ -164,10 +163,7 @@ const setup = async () => {
       messageEntry.el.firstChild.classList.add("type" + message.type);
       ui.messageList.appendChild(messageEntry.el.firstChild);
     });
-    while (
-      document.getElementById("messages").childElementCount >
-      constants.MAX_MESSAGES
-    ) {
+    while (document.getElementById("messages").childElementCount > constants.MAX_MESSAGES) {
       document.getElementById("messages").childNodes[0].remove();
     }
   });
@@ -228,8 +224,7 @@ const setup = async () => {
 
   ui.hidePlayerList.addEventListener("change", () => {
     if (ui.hidePlayerList.checked) {
-      ui.playerListContainer.style.right =
-        -ui.playerListContainer.offsetWidth + "px";
+      ui.playerListContainer.style.right = -ui.playerListContainer.offsetWidth + "px";
     } else {
       ui.playerListContainer.style.right = 0;
     }
@@ -237,8 +232,7 @@ const setup = async () => {
 
   if (constants.DEFAULT_HIDE_PLAYER_LIST) {
     ui.hidePlayerList.checked = true;
-    ui.playerListContainer.style.right =
-      -ui.playerListContainer.offsetWidth + "px";
+    ui.playerListContainer.style.right = -ui.playerListContainer.offsetWidth + "px";
   }
 
   players.init();

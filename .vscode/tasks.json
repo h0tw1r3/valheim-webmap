@@ -1,35 +1,35 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build",
-            "command": "dotnet",
-            "type": "shell",
-            "args": [
-                "cake",
-                "--configuration=Debug",
-                "--rebuild"
-            ],
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "buildRelease",
-            "command": "dotnet",
-            "type": "shell",
-            "args": [
-                "build",
-                "--configuration=Release",
-                "--rebuild"
-            ],
-            "group": "build",
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": "$msCompile"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "shell",
+      "args": [
+        "cake",
+        "--configuration=Debug",
+        "--rebuild"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "buildRelease",
+      "command": "dotnet",
+      "type": "shell",
+      "args": [
+        "build",
+        "--configuration=Release",
+        "--rebuild"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": "$msCompile"
+    }
+  ]
 }

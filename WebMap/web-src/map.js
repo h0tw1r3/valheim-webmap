@@ -78,10 +78,8 @@ const performUpdateIcons = () => {
       map.appendChild(iconObj.el);
     }
 
-    const isIconTypeHidden =
-      iconObj.type in hiddenIcons && hiddenIcons[iconObj.type];
-    iconObj.el.style.display =
-      isIconTypeHidden || iconObj.hidden ? "none" : "block";
+    const isIconTypeHidden = iconObj.type in hiddenIcons && hiddenIcons[iconObj.type];
+    iconObj.el.style.display = isIconTypeHidden || iconObj.hidden ? "none" : "block";
 
     if (iconObj.flags) {
       Object.keys(iconObj.flags).forEach((key) => {
@@ -111,12 +109,8 @@ const performUpdateIcons = () => {
 
 window.addEventListener("mousemove", (e) => {
   const canvasOffsetScale = map.offsetWidth / width;
-  const x =
-    pixelSize *
-    (-coordOffset + (e.clientX - map.offsetLeft) / canvasOffsetScale);
-  const y =
-    pixelSize *
-    (height - coordOffset + (map.offsetTop - e.clientY) / canvasOffsetScale);
+  const x = pixelSize * (-coordOffset + (e.clientX - map.offsetLeft) / canvasOffsetScale);
+  const y = pixelSize * (height - coordOffset + (map.offsetTop - e.clientY) / canvasOffsetScale);
   ui.coords.textContent = `${x.toFixed(2)} , ${y.toFixed(2)}`;
 });
 
@@ -217,10 +211,8 @@ const setZoom = function (zoomP, zoomTowardsX, zoomTowardsY) {
   map.style.height = map.offsetWidth + "px";
 
   const zoomRatio = currentZoom / oldZoom;
-  map.style.left =
-    zoomRatio * (map.offsetLeft - zoomTowardsX) + zoomTowardsX + "px";
-  map.style.top =
-    zoomRatio * (map.offsetTop - zoomTowardsY) + zoomTowardsY + "px";
+  map.style.left = zoomRatio * (map.offsetLeft - zoomTowardsX) + zoomTowardsX + "px";
+  map.style.top = zoomRatio * (map.offsetTop - zoomTowardsY) + zoomTowardsY + "px";
 
   updateIcons();
 };
@@ -302,14 +294,8 @@ const init = (options) => {
     move: (pointers) => {
       if (pointers.length === 1 && !isZooming && !followIcon) {
         const e = pointers[0].event;
-        map.style.left =
-          canvasPreDragPos.x +
-          (e.clientX - pointers[0].downEvent.clientX) +
-          "px";
-        map.style.top =
-          canvasPreDragPos.y +
-          (e.clientY - pointers[0].downEvent.clientY) +
-          "px";
+        map.style.left = canvasPreDragPos.x + (e.clientX - pointers[0].downEvent.clientX) + "px";
+        map.style.top = canvasPreDragPos.y + (e.clientY - pointers[0].downEvent.clientY) + "px";
 
         updateIcons();
       } else if (pointers.length === 2) {
